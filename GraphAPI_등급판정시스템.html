@@ -232,6 +232,58 @@ details.guide > summary .tagline{font-weight:400;color:var(--muted);font-size:11
 .tabbar .sub{font-size:11px;font-weight:400;color:var(--muted)}
 @media (max-width:560px){ .tabbar .sub{display:none} }
 
+/* ══ Tab3 : 회수 대상 산출 ══ */
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.chip{
+  display:flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:8px;
+  padding:6px 11px;background:var(--bg);font-size:12px
+}
+.chip b{font-weight:700}
+.chip .ok{color:var(--g1);font-weight:800}
+.chip .no{color:var(--g3);font-weight:800}
+.chip .cnt{color:var(--muted);font-family:var(--mono);font-size:11px}
+.covgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px}
+.cov{border:1px solid var(--line);border-radius:10px;padding:11px 13px;background:var(--bg)}
+.cov.on{background:var(--g1bg);border-color:var(--g1)}
+.cov.off{background:var(--g3bg);border-color:var(--g3)}
+.cov .h{font-size:11px;font-weight:800;letter-spacing:.4px;color:var(--muted)}
+.cov .v{font-size:13.5px;font-weight:800;margin-top:3px}
+.cov.on .v{color:var(--g1)} .cov.off .v{color:var(--g3)}
+.cov .n{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.5}
+.dispgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.disp{border:2px solid;border-radius:11px;padding:13px 15px;cursor:pointer;transition:.12s}
+.disp:hover{filter:brightness(1.03)}
+.disp[aria-pressed="true"]{box-shadow:0 0 0 3px rgba(30,39,97,.18)}
+.disp .c{font-family:var(--mono);font-size:11px;font-weight:800;letter-spacing:.5px}
+.disp .num{font-size:30px;font-weight:800;line-height:1.1;margin:2px 0}
+.disp .nm{font-size:12.5px;font-weight:700}
+.disp .ds{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
+.bar{display:flex;height:12px;border-radius:999px;overflow:hidden;margin:14px 0 6px;border:1px solid var(--line)}
+.bar span{display:block}
+.barleg{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
+.barleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
+.flags{display:flex;gap:5px;flex-wrap:wrap}
+.flag{font-size:10px;font-weight:700;padding:1px 6px;border-radius:4px;border:1px solid var(--g2);color:var(--g2);background:var(--g2bg);white-space:nowrap}
+.flag.auto{border-color:var(--med);color:var(--med);background:transparent}
+.grp{border:1px solid var(--line);border-radius:11px;margin-top:11px;background:var(--card);overflow:hidden}
+.grp > summary{
+  cursor:pointer;list-style:none;padding:11px 14px;font-size:13px;font-weight:700;color:var(--navy);
+  display:flex;align-items:center;gap:9px;flex-wrap:wrap
+}
+.grp > summary::-webkit-details-marker{display:none}
+.grp > summary::after{content:"▾";margin-left:auto;color:var(--muted)}
+.grp[open] > summary::after{transform:rotate(180deg)}
+.grp > summary:hover{background:var(--bg)}
+.grp .who{font-family:var(--mono);font-size:11.5px;color:var(--muted);font-weight:400}
+.grp .body{padding:0 14px 14px}
+.grp textarea{
+  width:100%;font-family:var(--mono);font-size:11.5px;line-height:1.6;padding:10px;
+  border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);
+  min-height:230px;resize:vertical
+}
+.grp .sj{width:100%;font-family:inherit;font-size:12.5px;padding:7px 10px;border:1px solid var(--line);
+  border-radius:7px;background:var(--bg);color:var(--ink);margin-bottom:8px}
+
 /* ══ Tab2 : 관리자 권한 조회 ══ */
 .searchrow{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
 .searchrow .fld{flex:1 1 260px;min-width:0}
@@ -334,6 +386,9 @@ table.roles .en{font-family:var(--mono);font-size:11px;color:var(--muted)}
   </button>
   <button type="button" role="tab" id="tabbtn2" aria-controls="tab2" aria-selected="false">
     <span class="no">2</span> M365 관리자 권한 조회 <span class="sub">역할 검색 → A1/A2/A3</span>
+  </button>
+  <button type="button" role="tab" id="tabbtn3" aria-controls="tab3" aria-selected="false">
+    <span class="no">3</span> Entra App 회수 대상 산출 <span class="sub">인벤토리 CSV → D1~D4 + 확인 메일</span>
   </button>
 </div>
 
@@ -669,6 +724,88 @@ table.roles .en{font-family:var(--mono);font-size:11px;color:var(--muted)}
 </section>
 
 </div><!-- /tab2 -->
+
+<div id="tab3" role="tabpanel" aria-labelledby="tabbtn3" class="hide">
+
+<!-- ① 업로드 -->
+<section class="card noprint">
+  <h2><span class="n">1</span> Entra App 인벤토리 CSV 업로드</h2>
+  <div id="t3drop" tabindex="0" role="button" aria-label="인벤토리 CSV 업로드">
+    <div class="big">인벤토리 CSV를 여기에 끌어다 놓으세요 (여러 개 동시 가능)</div>
+    <div class="sub">파일은 이 브라우저 안에서만 처리되며 외부로 전송되지 않습니다 · .csv 전용</div>
+    <div class="btnrow">
+      <button id="t3pick" type="button">파일 선택</button>
+      <button id="t3demo" type="button" class="ghost">샘플로 체험하기</button>
+    </div>
+  </div>
+  <input id="t3file" type="file" accept=".csv" multiple class="hide">
+  <div id="t3err" class="err hide"></div>
+  <div class="legend" style="margin-top:12px">
+    <b>최소 요건</b> — M365 관리센터 &gt; 앱 등록 &gt; <b>관리 목록 내보내기</b> CSV 1개.
+    자격증명·리디렉션 URI·태그 기반으로 <b>기본 판정</b>이 가능합니다.<br>
+    <b>정밀 판정</b> — <code>tools/collect_entra_inventory.ps1</code> 산출 CSV(01~05)를 함께 올리면
+    Graph 권한·소유자·로그인 활동까지 반영되어 <b>권한 회수 대상과 소유자별 메일</b>까지 생성됩니다.
+  </div>
+  <div id="t3files" class="chips"></div>
+</section>
+
+<!-- ② 커버리지 -->
+<section id="t3covSec" class="card hide">
+  <h2><span class="n">2</span> 데이터 커버리지 <span class="sp"></span>
+    <span style="font-size:11px;font-weight:400;color:var(--muted)" class="noprint">확보된 데이터에 따라 판정 가능 범위가 달라집니다</span>
+  </h2>
+  <div id="t3coverage"></div>
+</section>
+
+<!-- ③ 판정 -->
+<section id="t3sumSec" class="card hide">
+  <h2><span class="n">3</span> 처분 판정 결과</h2>
+  <div id="t3summary"></div>
+</section>
+
+<!-- ④ 목록 -->
+<section id="t3listSec" class="card hide">
+  <h2><span class="n">4</span> 대상 목록</h2>
+  <div class="searchrow" style="margin-bottom:10px">
+    <div class="fld"><label for="t3q">앱 이름 · App ID 검색</label>
+      <input id="t3q" type="text" placeholder="예: Copilot, TestApp" autocomplete="off"></div>
+    <div class="fld sm"><label for="t3disp">처분</label>
+      <select id="t3disp"><option value="">전체</option></select></div>
+    <div class="fld sm"><label for="t3grp">유형</label>
+      <select id="t3grp">
+        <option value="">전체</option>
+        <option value="auto">자동 생성 앱만</option>
+        <option value="manual">수동 등록 앱만</option>
+        <option value="sec">보안 점검 대상만</option>
+        <option value="noowner">소유자 없음만</option>
+      </select></div>
+    <div class="fld sm"><label for="t3stale">방치 기준(일)</label>
+      <input id="t3stale" type="number" value="180" min="30" max="1095" step="30"></div>
+  </div>
+  <div class="cnt" id="t3count"></div>
+  <div class="tblwrap"><table class="roles" id="t3table"></table></div>
+  <div class="legend">처분 D1 즉시 삭제 후보 · D2 소유자 확인 필요 · D3 권한 회수 대상 · D4 유지 ·
+    보안 플래그는 처분과 별개로 병행 점검합니다.</div>
+</section>
+
+<!-- ⑤ 메일 -->
+<section id="t3mailSec" class="card hide noprint">
+  <h2><span class="n">5</span> 소유자별 사용 여부 확인 메일</h2>
+  <div id="t3mail"></div>
+</section>
+
+<!-- ⑥ 내보내기 -->
+<section id="t3outSec" class="card hide noprint">
+  <h2><span class="n">6</span> 내보내기</h2>
+  <div class="btnrow" style="justify-content:flex-start">
+    <button id="t3csv" type="button">판정 결과 CSV</button>
+    <button id="t3json" type="button" class="ghost">JSON 내보내기</button>
+    <button id="t3print" type="button" class="ghost">인쇄 / PDF</button>
+    <button id="t3reset" type="button" class="ghost">초기화</button>
+  </div>
+</section>
+
+</div><!-- /tab3 -->
 
 <footer>
   GAPS v1.1 · DX혁신실 M365 운영<br>
@@ -1887,7 +2024,7 @@ $("#btnReset").addEventListener("click",()=>{
    7. 탭 전환
    ═══════════════════════════════════════════════════════════════════════════ */
 function showTab(n){
-  [1,2].forEach(i=>{
+  [1,2,3].forEach(i=>{
     $("#tab"+i).classList.toggle("hide", i!==n);
     $("#tabbtn"+i).setAttribute("aria-selected", String(i===n));
   });
@@ -1896,6 +2033,7 @@ function showTab(n){
 }
 $("#tabbtn1").addEventListener("click",()=>showTab(1));
 $("#tabbtn2").addEventListener("click",()=>showTab(2));
+$("#tabbtn3").addEventListener("click",()=>showTab(3));
 
 /* ═══════════════════════════════════════════════════════════════════════════
    8. Tab2 — M365 관리자 권한(역할) 조회
@@ -2123,6 +2261,519 @@ function initAdmin(){
       refresh(); selectRole(b.dataset.r); }));
   refresh();
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   9. Tab3 — Entra App 회수 대상 산출
+   ═══════════════════════════════════════════════════════════════════════════ */
+const DISP={
+  D1:{nm:"즉시 삭제 후보",g:3,ds:"인증 수단·회신 주소가 없어 동작이 불가능한 상태로 장기 방치. Graph 권한도 없음"},
+  D2:{nm:"소유자 확인 필요",g:2,ds:"사용 흔적이 없거나 자격증명이 만료됐으나 구성 요소가 남아 있음"},
+  D3:{nm:"권한 회수 대상",g:2,ds:"Graph 권한을 보유했으나 사용 이력이 없거나 인증이 불가능한 상태"},
+  D4:{nm:"유지",g:1,ds:"유효한 자격증명 보유. 정리 대상 아님"}
+};
+const SECFLAG={
+  MT:"멀티테넌트 — 외부 조직 사용자도 로그인 가능",
+  PA:"개인 MS 계정 허용",
+  IMP:"암묵적 허용 흐름 활성화 — 토큰이 URL로 노출되는 레거시 방식",
+  EXP:"자격증명 90일 내 만료",
+  DEAD:"자격증명 전부 만료",
+  NOOWNER:"소유자 미지정 — 확인 메일을 보낼 대상이 없음"
+};
+let T3={files:[],apps:new Map(),cov:{},rows:[],ready:false};
+
+/* ── RFC4180 CSV 파서 ── */
+function parseCSV(text){
+  if(text.charCodeAt(0)===0xFEFF) text=text.slice(1);
+  const rows=[]; let row=[],f="",i=0,q=false;
+  while(i<text.length){
+    const c=text[i];
+    if(q){
+      if(c==='"'){ if(text[i+1]==='"'){f+='"';i+=2;continue;} q=false;i++;continue; }
+      f+=c; i++; continue;
+    }
+    if(c==='"'){ q=true; i++; continue; }
+    if(c===','){ row.push(f); f=""; i++; continue; }
+    if(c==='\r'){ i++; continue; }
+    if(c==='\n'){ row.push(f); rows.push(row); row=[]; f=""; i++; continue; }
+    f+=c; i++;
+  }
+  if(f!==""||row.length){ row.push(f); rows.push(row); }
+  return rows;
+}
+function csvObjects(text){
+  const rows=parseCSV(text).filter(r=>r.length>1||(r[0]||"").trim()!=="");
+  if(rows.length<2) return [];
+  const head=rows[0].map(h=>h.trim());
+  return rows.slice(1).filter(r=>r.some(v=>v!=="")).map(r=>{
+    const o={};
+    head.forEach((h,i)=>o[h]=clean(r[i]));
+    return o;
+  });
+}
+/* 관리센터 내보내기는 값을 한 번 더 따옴표로 감싸 두는 경우가 있다 */
+function clean(v){
+  let s=(v==null?"":String(v)).trim();
+  if(s.length>1 && s[0]==='"' && s[s.length-1]==='"' && !s.startsWith('"[') && !s.startsWith('"{'))
+    s=s.slice(1,-1);
+  return s==="null"?"":s;
+}
+const jparse=s=>{ try{ return s?JSON.parse(s):[] }catch(_){ return [] } };
+const D=s=>{ const t=Date.parse(s); return isNaN(t)?null:new Date(t); };
+const daysBetween=(a,b)=>Math.round((b-a)/86400000);
+
+/* ── 파일 종류 판별 ── */
+function classify(head){
+  const h=new Set(head.map(x=>x.trim()));
+  if(h.has("keyCredentials")&&h.has("passwordCredentials")&&(h.has("appID")||h.has("appId"))) return "portal";
+  if(h.has("graphPermissionCount")) return "apps";
+  if(h.has("permissionName")&&h.has("resourceAppId")) return "reqperm";
+  if(h.has("ownerObjectId")||(h.has("ownerMail")&&h.has("appId"))) return "owners";
+  if(h.has("grantType")) return "granted";
+  if(h.has("lastSignIn")||h.has("lastAppOnlySignIn")) return "signin";
+  return null;
+}
+const FILELABEL={portal:"관리센터 앱 등록 내보내기",apps:"01 앱 요약",reqperm:"02 요청 권한",
+                 owners:"03 소유자",granted:"04 동의된 권한",signin:"05 로그인 활동"};
+
+/* ── 취합 ── */
+function ingest(kind,objs){
+  const get=(o,...k)=>{ for(const x of k) if(o[x]!==undefined&&o[x]!=="") return o[x]; return ""; };
+  const key=id=>String(id||"").toLowerCase();
+  const touch=id=>{
+    const k=key(id);
+    if(!k) return null;
+    if(!T3.apps.has(k)) T3.apps.set(k,{appId:k,name:"",owners:[],graphPerms:[],grants:[]});
+    return T3.apps.get(k);
+  };
+  if(kind==="portal"){
+    objs.forEach(o=>{
+      const a=touch(get(o,"appID","appId")); if(!a) return;
+      const kc=jparse(o.keyCredentials), pc=jparse(o.passwordCredentials);
+      const creds=kc.concat(pc);
+      const ends=creds.map(c=>D(c.endDateTime)).filter(Boolean);
+      a.name=a.name||get(o,"displayName");
+      a.created=D(get(o,"createdDateTime"));
+      a.credCount=creds.length;
+      a.credMaxExpiry=ends.length?new Date(Math.max(...ends)):null;
+      a.redirectCount=jparse(o["web.redirectUris"]).length+jparse(o["publicClient.redirectUris"]).length;
+      a.audience=get(o,"signInAudience");
+      a.tags=jparse(o.tags);
+      a.implicit=(o["web.implicitGrantSettings.enableAccessTokenIssuance"]==="true"||
+                  o["web.implicitGrantSettings.enableIdTokenIssuance"]==="true");
+      a.objectId=get(o,"id");
+    });
+  } else if(kind==="apps"){
+    objs.forEach(o=>{
+      const a=touch(get(o,"appId")); if(!a) return;
+      a.name=get(o,"displayName")||a.name;
+      a.created=a.created||D(get(o,"createdDateTime"));
+      a.objectId=a.objectId||get(o,"objectId");
+      const cc=parseInt(get(o,"credentialCount"),10);
+      if(!isNaN(cc)) a.credCount=cc;
+      const me=D(get(o,"credentialMaxExpiry")); if(me) a.credMaxExpiry=me;
+      const rc=parseInt(get(o,"redirectUriCount"),10); if(!isNaN(rc)) a.redirectCount=rc;
+      a.audience=get(o,"signInAudience")||a.audience;
+      if(get(o,"tags")) a.tags=get(o,"tags").split(";").filter(Boolean);
+      const gp=parseInt(get(o,"graphPermissionCount"),10);
+      if(!isNaN(gp)) a.graphPermCount=gp;
+      if(get(o,"graphPermissions")) a.graphPerms=get(o,"graphPermissions").split(";").filter(Boolean);
+      const oc=parseInt(get(o,"ownerCount"),10); if(!isNaN(oc)) a.ownerCount=oc;
+      if(get(o,"ownerMails")) a.ownerMailsRaw=get(o,"ownerMails").split(";").filter(Boolean);
+    });
+  } else if(kind==="reqperm"){
+    objs.forEach(o=>{
+      const a=touch(get(o,"appId")); if(!a) return;
+      a.name=a.name||get(o,"appDisplayName");
+      const res=get(o,"resource"), nm=get(o,"permissionName");
+      if(/graph/i.test(res)&&nm){ a.graphPerms.push(nm+" ("+get(o,"permissionType")+")"); }
+      a.graphPermCount=a.graphPerms.length;
+    });
+  } else if(kind==="owners"){
+    objs.forEach(o=>{
+      const a=touch(get(o,"appId")); if(!a) return;
+      a.name=a.name||get(o,"appDisplayName");
+      const mail=get(o,"ownerMail","ownerUPN");
+      a.owners.push({name:get(o,"ownerDisplayName")||mail||"(이름없음)",mail,type:get(o,"ownerType")});
+      a.ownerCount=a.owners.length;
+    });
+  } else if(kind==="granted"){
+    objs.forEach(o=>{
+      const a=touch(get(o,"appId")); if(!a) return;
+      a.name=a.name||get(o,"appDisplayName");
+      a.grants.push({type:get(o,"grantType"),res:get(o,"resource"),perm:get(o,"permissionName")});
+    });
+  } else if(kind==="signin"){
+    objs.forEach(o=>{
+      const a=touch(get(o,"appId")); if(!a) return;
+      const cands=["lastSignIn","lastAppOnlySignIn","lastDelegatedClientSignIn","lastDelegatedResourceSignIn"]
+        .map(k=>D(get(o,k))).filter(Boolean);
+      a.lastSignIn=cands.length?new Date(Math.max(...cands)):null;
+      a.signInKnown=true;
+    });
+  }
+}
+
+/* ── 판정 ── */
+function judgeApps(){
+  const now=new Date();
+  const staleDays=Math.max(30,parseInt($("#t3stale").value,10)||180);
+  const UNUSED=90;
+  const cov=T3.cov;
+  T3.rows=[...T3.apps.values()].map(a=>{
+    const noCred=(a.credCount||0)===0;
+    const expired=!noCred&&a.credMaxExpiry&&a.credMaxExpiry<now;
+    const soon=!noCred&&!expired&&a.credMaxExpiry&&daysBetween(now,a.credMaxExpiry)<=90;
+    const noRedirect=(a.redirectCount||0)===0;
+    const age=a.created?daysBetween(a.created,now):null;
+    const stale=age!=null&&age>=staleDays;
+    const graphKnown=a.graphPermCount!=null;
+    const hasGraph=graphKnown&&a.graphPermCount>0;
+    const signInKnown=!!a.signInKnown;
+    const dsi=signInKnown&&a.lastSignIn?daysBetween(a.lastSignIn,now):null;
+    const unused=signInKnown&&(!a.lastSignIn||dsi>UNUSED);
+    const auto=(a.tags||[]).some(t=>/AIAgentBuilder|AgenticApp|AgentCreatedBy|power-virtual-agents|Fabric/i.test(t));
+
+    let d;
+    if(hasGraph){ d=(unused||noCred||expired)?"D3":"D4"; }
+    else if(noCred&&noRedirect&&stale&&(graphKnown||true)) d="D1";
+    else if(noCred||expired||unused) d="D2";
+    else d="D4";
+
+    const flags=[];
+    if(/MultipleOrgs/i.test(a.audience||"")) flags.push("MT");
+    if(/PersonalMicrosoftAccount/i.test(a.audience||"")) flags.push("PA");
+    if(a.implicit) flags.push("IMP");
+    if(expired) flags.push("DEAD"); else if(soon) flags.push("EXP");
+    if(cov.owners&&(a.ownerCount||0)===0) flags.push("NOOWNER");
+
+    const why=[];
+    if(noCred) why.push("자격증명 없음 → 토큰 발급 불가");
+    else if(expired) why.push("자격증명 전부 만료");
+    else if(soon) why.push("자격증명 90일 내 만료");
+    if(noRedirect) why.push("리디렉션 URI 없음");
+    if(graphKnown) why.push(hasGraph?("Graph 권한 "+a.graphPermCount+"건 보유"):"Graph 권한 없음");
+    if(signInKnown) why.push(a.lastSignIn?("최근 로그인 "+dsi+"일 전"):"로그인 이력 없음");
+    if(age!=null) why.push("생성 후 "+age+"일 경과");
+    if(auto) why.push("자동 생성 앱(Copilot Studio 등)");
+
+    const owners=a.owners.length?a.owners
+      :(a.ownerMailsRaw||[]).map(m=>({name:m,mail:m,type:"user"}));
+
+    return {appId:a.appId,name:a.name||"(이름없음)",disp:d,flags,why,auto,owners,
+            graphPerms:a.graphPerms||[],graphPermCount:graphKnown?a.graphPermCount:null,
+            credCount:a.credCount||0,redirectCount:a.redirectCount||0,age,
+            audience:a.audience||"",lastSignIn:a.lastSignIn?ymd(a.lastSignIn):(signInKnown?"없음":""),
+            objectId:a.objectId||""};
+  }).sort((x,y)=>["D1","D3","D2","D4"].indexOf(x.disp)-["D1","D3","D2","D4"].indexOf(y.disp)
+                 ||(y.age||0)-(x.age||0));
+}
+
+/* ── 렌더 ── */
+function t3Filter(){
+  const q=($("#t3q").value||"").trim().toLowerCase();
+  const dp=$("#t3disp").value, gp=$("#t3grp").value;
+  return T3.rows.filter(r=>{
+    if(dp&&r.disp!==dp) return false;
+    if(gp==="auto"&&!r.auto) return false;
+    if(gp==="manual"&&r.auto) return false;
+    if(gp==="sec"&&!r.flags.length) return false;
+    if(gp==="noowner"&&r.owners.length) return false;
+    if(q&&!(r.name+" "+r.appId).toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+function renderT3(){
+  const cov=T3.cov;
+  /* 커버리지 */
+  const covItems=[
+    ["앱 목록",cov.apps,"앱 이름·생성일·자격증명·리디렉션 URI","이 데이터 없이는 아무 판정도 불가"],
+    ["Graph 권한",cov.graphPerm,"앱별 Graph API 권한 보유 여부·목록","D3(권한 회수) 판정 및 '깡통 App' 정의에 필수"],
+    ["소유자",cov.owners,"앱별 소유자 이름·메일","확인 메일 발송 대상 산출에 필수"],
+    ["로그인 활동",cov.signIn,"마지막 사용 시각","90일 미사용 판정에 필수"]
+  ];
+  $("#t3coverage").innerHTML=`<div class="covgrid">${covItems.map(([h,on,v,n])=>`
+    <div class="cov ${on?"on":"off"}"><div class="h">${esc(h)}</div>
+      <div class="v">${on?"확보":"없음"}</div>
+      <div class="n">${esc(v)}<br>${on?"":"<b>"+esc(n)+"</b>"}</div></div>`).join("")}</div>
+    ${!cov.graphPerm||!cov.owners||!cov.signIn?`<div class="halt" style="margin-top:12px">
+      부족한 데이터가 있어 판정 범위가 제한됩니다.
+      ${!cov.graphPerm?"<b>Graph 권한 정보가 없어 D3(권한 회수) 판정과 「Graph API 권한 없는 앱」 정의를 적용할 수 없습니다.</b> ":""}
+      ${!cov.owners?"<b>소유자 정보가 없어 확인 메일을 생성할 수 없습니다.</b> ":""}
+      ${!cov.signIn?"<b>로그인 활동이 없어 실제 미사용 여부 대신 자격증명·구성 상태로 대체 판정했습니다.</b> ":""}
+      <code>tools/collect_entra_inventory.ps1</code> 을 실행해 CSV를 추가로 확보하면 모두 해소됩니다.</div>`:""}`;
+
+  /* 요약 */
+  const cnt={D1:0,D2:0,D3:0,D4:0};
+  T3.rows.forEach(r=>cnt[r.disp]++);
+  const tot=T3.rows.length||1;
+  const autoN=T3.rows.filter(r=>r.auto).length;
+  const secN=T3.rows.filter(r=>r.flags.length).length;
+  const noOwnerN=cov.owners?T3.rows.filter(r=>!r.owners.length).length:null;
+  $("#t3summary").innerHTML=`
+    <div class="dispgrid">${["D1","D3","D2","D4"].map(d=>{
+      const g=DISP[d].g;
+      return `<div class="disp" data-d="${d}" role="button" aria-pressed="false"
+        style="border-color:var(--g${g});background:var(--g${g}bg)">
+        <div class="c" style="color:var(--g${g})">${d}</div>
+        <div class="num" style="color:var(--g${g})">${cnt[d]}</div>
+        <div class="nm">${esc(DISP[d].nm)}</div>
+        <div class="ds">${esc(DISP[d].ds)}</div></div>`;}).join("")}</div>
+    <div class="bar">${["D1","D3","D2","D4"].map(d=>
+      `<span style="width:${cnt[d]/tot*100}%;background:var(--g${DISP[d].g})"></span>`).join("")}</div>
+    <div class="barleg">${["D1","D3","D2","D4"].map(d=>
+      `<span><i style="background:var(--g${DISP[d].g})"></i>${d} ${esc(DISP[d].nm)} ${cnt[d]}건 (${Math.round(cnt[d]/tot*100)}%)</span>`).join("")}</div>
+    <div class="ctlgrid" style="margin-top:16px">
+      <div class="ctl1"><div class="h">전체 앱</div><div class="v">${T3.rows.length}건</div></div>
+      <div class="ctl1${autoN?" warn":""}"><div class="h">자동 생성 앱</div><div class="v">${autoN}건
+        ${autoN?`<span style="font-weight:400;font-size:11.5px;color:var(--muted)">
+        (${Math.round(autoN/tot*100)}%) — Copilot Studio 등이 자동 생성. 개별 메일보다 공지 방식 권장</span>`:""}</div></div>
+      <div class="ctl1${secN?" warn":""}"><div class="h">보안 점검 대상</div><div class="v">${secN}건</div></div>
+      ${noOwnerN!=null?`<div class="ctl1${noOwnerN?" warn":""}"><div class="h">소유자 없음</div>
+        <div class="v">${noOwnerN}건 <span style="font-weight:400;font-size:11.5px;color:var(--muted)">메일 발송 불가</span></div></div>`:""}
+    </div>`;
+  $("#t3summary").querySelectorAll(".disp").forEach(el=>el.addEventListener("click",()=>{
+    const d=el.dataset.d;
+    $("#t3disp").value = ($("#t3disp").value===d) ? "" : d;
+    renderT3List();
+    $("#t3listSec").scrollIntoView({behavior:"smooth",block:"start"});
+  }));
+
+  $("#t3disp").innerHTML=`<option value="">전체</option>`+
+    ["D1","D3","D2","D4"].map(d=>`<option value="${d}">${d} · ${esc(DISP[d].nm)} (${cnt[d]})</option>`).join("");
+  renderT3List(); renderT3Mail();
+}
+function renderT3List(){
+  const list=t3Filter();
+  $("#t3count").innerHTML=`총 <b>${T3.rows.length}</b>건 중 <b>${list.length}</b>건 표시`;
+  $("#t3table").innerHTML=`<thead><tr>
+      <th>처분</th><th>앱 이름</th><th>App ID</th><th>경과</th><th>Graph 권한</th>
+      <th>보안 플래그</th><th>판정 근거</th></tr></thead>
+    <tbody>${list.slice(0,400).map(r=>`<tr>
+      <td class="gcell" style="color:var(--g${DISP[r.disp].g});background:var(--g${DISP[r.disp].g}bg)">${r.disp}</td>
+      <td><b>${esc(r.name)}</b>${r.auto?' <span class="flag auto">자동생성</span>':""}
+        ${r.owners.length?`<div class="en">${esc(r.owners.map(o=>o.name).join(", ").slice(0,44))}</div>`:
+          (T3.cov.owners?'<div class="en" style="color:var(--g3)">소유자 없음</div>':"")}</td>
+      <td class="en">${esc(r.appId.slice(0,8))}…</td>
+      <td style="white-space:nowrap">${r.age!=null?r.age+"일":"-"}</td>
+      <td style="white-space:nowrap">${r.graphPermCount==null?'<span style="color:var(--muted)">미상</span>':r.graphPermCount+"건"}</td>
+      <td><div class="flags">${r.flags.map(f=>`<span class="flag" title="${esc(SECFLAG[f])}">${f}</span>`).join("")}</div></td>
+      <td style="font-size:11.5px;color:var(--muted)">${esc(r.why.join(" · "))}</td>
+    </tr>`).join("")}</tbody>`;
+  if(list.length>400) $("#t3count").innerHTML+=` <span style="color:var(--g3)">(표에는 상위 400건만 표시 — 전체는 CSV로 내보내세요)</span>`;
+}
+function buildOwnerMail(owner,apps){
+  const due=ymd(addBizDays(new Date(),10));
+  const L=[];
+  L.push(owner.name+" 님께,");
+  L.push("");
+  L.push("DX혁신실 M365 운영입니다.");
+  L.push("Microsoft Entra에 등록된 애플리케이션을 분기 점검하는 과정에서, 아래 "+apps.length+"건이");
+  L.push("장기간 사용 흔적이 없거나 동작이 불가능한 상태로 확인되어 사용 여부를 확인드립니다.");
+  L.push("");
+  L.push("■ 대상 앱");
+  apps.forEach((a,i)=>{
+    L.push("");
+    L.push("  "+(i+1)+") "+a.name);
+    L.push("     App ID   : "+a.appId);
+    if(a.age!=null) L.push("     등록 경과 : "+a.age+"일");
+    if(a.graphPermCount) L.push("     Graph 권한: "+(a.graphPerms.length?a.graphPerms.join(", "):a.graphPermCount+"건"));
+    L.push("     확인 사유 : "+a.why.join(" / "));
+  });
+  L.push("");
+  L.push("■ 회신 요청");
+  L.push("  아래 중 하나로 "+due+" 까지 회신 부탁드립니다.");
+  L.push("");
+  L.push("  (1) 사용 중입니다        → 용도·담당자·예상 사용 기간을 알려주세요. 관리 대장에 반영하겠습니다.");
+  L.push("  (2) 사용하지 않습니다    → 앱 등록과 부여된 권한을 회수·삭제하겠습니다.");
+  L.push("  (3) 판단이 어렵습니다    → 확인이 필요한 부분을 알려주시면 함께 확인하겠습니다.");
+  L.push("");
+  L.push("■ 미회신 시 처리");
+  L.push("  회신이 없으면 로그인 차단 후 3개월간 이슈가 없을 경우 앱을 삭제합니다.");
+  L.push("  삭제 전 1회 더 안내드리며, 차단 이후에도 필요하시면 언제든 복구 요청하실 수 있습니다.");
+  L.push("");
+  L.push("※ 미사용 앱과 권한이 남아 있으면 자격 증명 유출 시 침해 경로가 되므로 정기적으로 정리하고 있습니다.");
+  L.push("※ 본 점검은 Microsoft 권고(90일 이상 미사용 시 휴면 앱으로 판단) 기준을 따릅니다.");
+  L.push("");
+  L.push("감사합니다.");
+  L.push("DX혁신실 M365 운영 드림");
+  return {subject:"[확인 요청] 미사용 의심 Entra 앱 "+apps.length+"건 사용 여부 확인 ("+due+"까지)",
+          body:L.join("\n")};
+}
+function renderT3Mail(){
+  const box=$("#t3mail");
+  if(!T3.cov.owners){
+    box.innerHTML=`<div class="halt">소유자 정보가 없어 메일을 생성할 수 없습니다.
+      <code>tools/collect_entra_inventory.ps1</code> 을 실행해 <code>03_owners</code> CSV를 확보한 뒤 다시 올려주세요.</div>`;
+    return;
+  }
+  const targets=T3.rows.filter(r=>r.disp!=="D4");
+  const byOwner=new Map(), noOwner=[], autoApps=[];
+  targets.forEach(r=>{
+    if(r.auto){ autoApps.push(r); return; }
+    if(!r.owners.length){ noOwner.push(r); return; }
+    r.owners.filter(o=>o.mail).forEach(o=>{
+      if(!byOwner.has(o.mail)) byOwner.set(o.mail,{owner:o,apps:[]});
+      byOwner.get(o.mail).apps.push(r);
+    });
+    if(!r.owners.some(o=>o.mail)) noOwner.push(r);
+  });
+  let h=`<div class="ctlgrid" style="margin-bottom:14px">
+    <div class="ctl1"><div class="h">확인 대상</div><div class="v">${targets.length}건 (D1·D2·D3)</div></div>
+    <div class="ctl1"><div class="h">개별 메일</div><div class="v">${byOwner.size}명 앞</div></div>
+    <div class="ctl1${autoApps.length?" warn":""}"><div class="h">자동 생성 앱</div><div class="v">${autoApps.length}건</div></div>
+    <div class="ctl1${noOwner.length?" warn":""}"><div class="h">소유자 없음</div><div class="v">${noOwner.length}건</div></div>
+  </div>`;
+  if(autoApps.length)
+    h+=`<div class="halt" style="margin-bottom:12px">자동 생성 앱 ${autoApps.length}건은 개별 메일 대상에서 제외했습니다.
+      Copilot Studio 등이 봇 생성 시 자동으로 만든 앱이라 소유자가 "만든 적 없다"고 회신할 가능성이 높습니다.
+      <b>전사 공지 1건 + 이의신청 기간 운영</b> 방식을 권장합니다.</div>`;
+  if(noOwner.length)
+    h+=`<div class="halt" style="margin-bottom:12px">소유자 미지정 ${noOwner.length}건은 메일을 보낼 대상이 없습니다.
+      생성자 추적(감사 로그) 또는 담당 조직 확인이 별도로 필요합니다.</div>`;
+  if(!byOwner.size)
+    h+=`<div class="ev">개별 메일 대상이 없습니다.</div>`;
+  [...byOwner.values()].sort((a,b)=>b.apps.length-a.apps.length).forEach((g,i)=>{
+    const m=buildOwnerMail(g.owner,g.apps);
+    h+=`<details class="grp"${i===0?" open":""}>
+      <summary>${esc(g.owner.name)} <span class="who">${esc(g.owner.mail)}</span>
+        <span class="tag cat">대상 ${g.apps.length}건</span></summary>
+      <div class="body">
+        <input class="sj" type="text" value="${esc(m.subject)}">
+        <textarea spellcheck="false">${esc(m.body)}</textarea>
+        <div class="btnrow" style="justify-content:flex-start;margin-top:8px">
+          <button type="button" class="mcopy" data-mail="${esc(g.owner.mail)}">제목 + 본문 복사</button>
+          <button type="button" class="ghost mopen" data-mail="${esc(g.owner.mail)}">메일 앱에서 초안 열기</button>
+        </div>
+      </div></details>`;
+  });
+  box.innerHTML=h;
+  box.querySelectorAll(".mcopy").forEach(b=>b.addEventListener("click",async()=>{
+    const d=b.closest(".body");
+    const txt="제목: "+d.querySelector(".sj").value+"\n\n"+d.querySelector("textarea").value;
+    try{ await navigator.clipboard.writeText(txt); b.textContent="복사 완료 ✓"; }
+    catch(_){ d.querySelector("textarea").select(); b.textContent="Ctrl+C 로 복사하세요"; }
+    setTimeout(()=>b.textContent="제목 + 본문 복사",1800);
+  }));
+  box.querySelectorAll(".mopen").forEach(b=>b.addEventListener("click",async()=>{
+    const d=b.closest(".body"), body=d.querySelector("textarea").value;
+    try{ await navigator.clipboard.writeText(body); }catch(_){}
+    const head="mailto:"+encodeURIComponent(b.dataset.mail)+"?subject="+encodeURIComponent(d.querySelector(".sj").value)+"&body=";
+    let payload=body;
+    if(head.length+encodeURIComponent(body).length>1900)
+      payload="(전체 본문은 클립보드에 복사되어 있습니다. 이 줄을 지우고 붙여넣기 하세요.)";
+    window.location.href=head+encodeURIComponent(payload);
+  }));
+}
+
+/* ── 입력 ── */
+async function t3Handle(files){
+  $("#t3err").classList.add("hide");
+  try{
+    for(const f of files){
+      if(!/\.csv$/i.test(f.name)) throw new Error("CSV 파일만 지원합니다: "+f.name);
+      const text=await f.text();
+      const rows=parseCSV(text);
+      if(rows.length<2) throw new Error("내용이 비어 있습니다: "+f.name);
+      const kind=classify(rows[0]);
+      if(!kind) throw new Error("인식할 수 없는 CSV입니다: "+f.name+
+        " — 관리센터 앱 등록 내보내기 또는 collect_entra_inventory.ps1 산출 파일을 올려주세요.");
+      const objs=csvObjects(text);
+      ingest(kind,objs);
+      T3.files=T3.files.filter(x=>x.name!==f.name);
+      T3.files.push({name:f.name,kind,rows:objs.length});
+    }
+    T3.cov={
+      apps:[...T3.apps.values()].some(a=>a.credCount!=null),
+      graphPerm:[...T3.apps.values()].some(a=>a.graphPermCount!=null),
+      owners:T3.files.some(f=>f.kind==="owners")||[...T3.apps.values()].some(a=>a.ownerCount!=null),
+      signIn:[...T3.apps.values()].some(a=>a.signInKnown)
+    };
+    T3.ready=true;
+    $("#t3files").innerHTML=T3.files.map(f=>
+      `<span class="chip"><span class="ok">✓</span><b>${esc(FILELABEL[f.kind])}</b>
+       <span class="cnt">${f.rows}행</span><span class="cnt">${esc(f.name)}</span></span>`).join("");
+    judgeApps(); renderT3();
+    ["#t3covSec","#t3sumSec","#t3listSec","#t3mailSec","#t3outSec"].forEach(s=>$(s).classList.remove("hide"));
+    $("#t3sumSec").scrollIntoView({behavior:"smooth",block:"start"});
+  }catch(e){ const el=$("#t3err"); el.textContent="⚠ "+(e&&e.message?e.message:String(e)); el.classList.remove("hide"); }
+}
+const t3drop=$("#t3drop");
+$("#t3pick").addEventListener("click",e=>{e.stopPropagation();$("#t3file").click()});
+t3drop.addEventListener("click",()=>$("#t3file").click());
+t3drop.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("#t3file").click()}});
+$("#t3file").addEventListener("change",e=>{ if(e.target.files.length) t3Handle([...e.target.files]); });
+["dragenter","dragover"].forEach(t=>t3drop.addEventListener(t,e=>{e.preventDefault();t3drop.classList.add("hot")}));
+["dragleave","drop"].forEach(t=>t3drop.addEventListener(t,e=>{e.preventDefault();t3drop.classList.remove("hot")}));
+t3drop.addEventListener("drop",e=>{ if(e.dataTransfer.files.length) t3Handle([...e.dataTransfer.files]); });
+["#t3q","#t3grp"].forEach(s=>$(s).addEventListener("input",renderT3List));
+$("#t3disp").addEventListener("change",renderT3List);
+$("#t3stale").addEventListener("change",()=>{ if(T3.ready){ judgeApps(); renderT3(); } });
+$("#t3print").addEventListener("click",()=>window.print());
+$("#t3reset").addEventListener("click",()=>{
+  T3={files:[],apps:new Map(),cov:{},rows:[],ready:false};
+  $("#t3file").value=""; $("#t3files").innerHTML=""; $("#t3err").classList.add("hide");
+  ["#t3covSec","#t3sumSec","#t3listSec","#t3mailSec","#t3outSec"].forEach(s=>$(s).classList.add("hide"));
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+function dl(name,content,type){
+  const b=new Blob([content],{type});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+}
+$("#t3csv").addEventListener("click",()=>{
+  const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+  const head=["처분","처분명","앱 이름","App ID","Object ID","등록 경과(일)","Graph 권한 수","Graph 권한",
+              "자격증명 수","리디렉션 URI 수","signInAudience","마지막 로그인","자동생성","소유자","소유자 메일",
+              "보안 플래그","판정 근거"];
+  const body=T3.rows.map(r=>[r.disp,DISP[r.disp].nm,r.name,r.appId,r.objectId,r.age,
+    r.graphPermCount==null?"미상":r.graphPermCount,r.graphPerms.join(";"),r.credCount,r.redirectCount,
+    r.audience,r.lastSignIn,r.auto?"Y":"",r.owners.map(o=>o.name).join(";"),r.owners.map(o=>o.mail).filter(Boolean).join(";"),
+    r.flags.join(";"),r.why.join(" / ")].map(q).join(","));
+  dl("Entra_회수대상_"+ymd(new Date())+".csv","﻿"+[head.map(q).join(","),...body].join("\r\n"),"text/csv;charset=utf-8");
+});
+$("#t3json").addEventListener("click",()=>{
+  dl("Entra_회수대상_"+ymd(new Date())+".json",
+     JSON.stringify({meta:{tool:"GAPS Tab3",version:"1.0",generatedAt:new Date().toISOString(),
+       files:T3.files,coverage:T3.cov,staleDays:parseInt($("#t3stale").value,10)},
+       disposition:DISP,securityFlags:SECFLAG,apps:T3.rows},null,1),"application/json");
+});
+$("#t3demo").addEventListener("click",e=>{
+  e.stopPropagation();
+  const mk=(n,name,d)=>Object.assign({appId:n,name,owners:[],graphPerms:[],grants:[],
+    credCount:0,redirectCount:0,tags:[],audience:"AzureADMyOrg",
+    created:new Date(Date.now()-400*86400000)},d);
+  T3={files:[{name:"(샘플 데이터)",kind:"apps",rows:6}],apps:new Map(),cov:{},rows:[],ready:true};
+  [
+    mk("a1","TestApp",{created:new Date(Date.now()-1567*86400000),graphPermCount:0,ownerCount:0,signInKnown:true,lastSignIn:null}),
+    mk("a2","Copilot 1 (Power Virtual Agents)",{tags:["AIAgentBuilder","AgentCreatedBy:CopilotStudio"],
+       created:new Date(Date.now()-993*86400000),graphPermCount:0,ownerCount:0,signInKnown:true,lastSignIn:null}),
+    mk("a3","법무DB 수집기",{credCount:1,redirectCount:1,graphPermCount:3,
+       graphPerms:["Sites.Read.All (Application)","Files.Read.All (Application)","User.Read.All (Application)"],
+       owners:[{name:"이승목","mail":"lee@poscointl.com",type:"user"}],ownerCount:1,
+       signInKnown:true,lastSignIn:new Date(Date.now()-210*86400000),
+       credMaxExpiry:new Date(Date.now()+300*86400000),created:new Date(Date.now()-500*86400000)}),
+    mk("a4","RPA MS Graph API",{credCount:1,redirectCount:1,graphPermCount:7,
+       graphPerms:["Chat.ReadWrite.All (Delegated)","Mail.Read (Delegated)"],
+       owners:[{name:"금동진",mail:"keum@poscointl.com",type:"user"}],ownerCount:1,
+       signInKnown:true,lastSignIn:new Date(Date.now()-3*86400000),
+       credMaxExpiry:new Date(Date.now()+40*86400000),created:new Date(Date.now()-300*86400000)}),
+    mk("a5","외부연동 포털",{credCount:1,redirectCount:2,graphPermCount:1,graphPerms:["User.Read (Delegated)"],
+       audience:"AzureADMultipleOrgs",implicit:true,
+       owners:[{name:"이승목",mail:"lee@poscointl.com",type:"user"}],ownerCount:1,
+       signInKnown:true,lastSignIn:new Date(Date.now()-400*86400000),
+       credMaxExpiry:new Date(Date.now()-10*86400000),created:new Date(Date.now()-700*86400000)}),
+    mk("a6","MI Portal",{credCount:2,redirectCount:1,graphPermCount:2,graphPerms:["Reports.Read.All (Application)"],
+       owners:[{name:"강경현",mail:"kang@poscointl.com",type:"user"}],ownerCount:1,
+       signInKnown:true,lastSignIn:new Date(Date.now()-1*86400000),
+       credMaxExpiry:new Date(Date.now()+200*86400000),created:new Date(Date.now()-260*86400000)})
+  ].forEach(a=>T3.apps.set(a.appId,a));
+  T3.cov={apps:true,graphPerm:true,owners:true,signIn:true};
+  $("#t3files").innerHTML=`<span class="chip"><span class="ok">✓</span><b>샘플 데이터</b><span class="cnt">6행</span></span>`;
+  $("#t3err").classList.add("hide");
+  judgeApps(); renderT3();
+  ["#t3covSec","#t3sumSec","#t3listSec","#t3mailSec","#t3outSec"].forEach(s=>$(s).classList.remove("hide"));
+  $("#t3sumSec").scrollIntoView({behavior:"smooth",block:"start"});
+});
 
 /* 자체 점검용 (콘솔에서 GAPS.judge(...) 호출 가능) */
 window.GAPS={judge,extractFields,parsePptx,splitApi,lookupInfo,CFG,DEMO,

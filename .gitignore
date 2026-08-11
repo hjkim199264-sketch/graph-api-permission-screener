@@ -1,6 +1,12 @@
 # 로컬 테스트 전용 (정적 서버 기동 설정)
 .claude/
 
+# 실제 테넌트 데이터 — 절대 커밋하지 말 것
+.testdata/
+entra_export/
+AppRegistrationList*.csv
+0[1-5]_*.csv
+
 # Vercel
 .vercel/
 
