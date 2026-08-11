@@ -1,9 +1,17 @@
-# Graph API 권한 요청 대응 체계 — Day2 산출물
+# M365 권한 요청 대응 체계 — Day2 산출물
 
 DX혁신실 M365 운영 | 2026-08-11
 
-`Graph API 할당 프로세스 및 기준_260806_학습용.pptx` 의 등급 분류 기준을 문서화(BRD/PRD)하고,
-신청 템플릿 PPTX를 올리면 **등급 산정 · 보완 요청사항 · 향후 진행사항** 을 자동 산출하는 도구를 구현한 결과물이다.
+두 갈래의 권한 요청을 같은 판정 구조로 처리하기 위한 기준·문서·도구 모음이다.
+
+| | 대상 | 등급 | 입력 |
+|---|---|---|---|
+| **Tab 1** | Graph API 권한 | G1 / G2 / G3 | 신청 템플릿 PPTX 업로드 |
+| **Tab 2** | M365 관리자 역할 | A1 / A2 / A3 | 역할 검색 또는 목록 선택 |
+
+두 체계 모두 **3기준 × 2값 = 8조합 → 3등급** 이라는 동일한 구조를 쓴다.
+Graph API는 "Delegated면 무조건 G1", 관리자 역할은 "민감 자산 접근이 있으면 무조건 A3" 처럼
+**한 축이 등급을 결정**하는 방식도 같다.
 
 ---
 
@@ -31,24 +39,81 @@ DX혁신실 M365 운영 | 2026-08-11
 
 | 경로 | 설명 |
 |---|---|
-| `GraphAPI_등급판정시스템.html` | **판정 시스템 본체.** 단일 파일·오프라인 동작 |
+| `GraphAPI_등급판정시스템.html` | **판정 시스템 본체 (Tab1 + Tab2).** 단일 파일·오프라인 동작 |
 | `index.html` | 웹 배포용 진입점 (위 파일로 리다이렉트) |
+| **Graph API (Tab 1)** | |
 | `docs/BRD_GraphAPI_권한관리체계.md` | 배경·문제정의·비즈니스 목표·범위·성공지표·리스크 |
 | `docs/PRD_GraphAPI_등급판정시스템.md` | 기능요구사항·분류 규칙·API 사전·데이터 모델·화면정의·테스트 결과 |
 | `templates/Graph API 권한 신청서_템플릿_v1.0.pptx` | **요청자 배포용 빈 양식** (Full 1p + 약식 1p) |
 | `samples/*.pptx` | 작성 예시 6종 (테스트 케이스 겸용) |
 | `tools/build_templates.py` | 위 템플릿·샘플 PPTX 생성 스크립트 |
+| **관리자 역할 (Tab 2)** | |
+| `docs/M365 관리자 권한 분류 및 등급 기준_v1.0.pptx` | **기준 장표 14p** — 배경, 3기준×2값, 8조합→A1/A2/A3, 승인 프로세스, 역할별 등급표 |
+| `docs/M365 관리자 역할 명세서_v1.0.xlsx` | **역할 명세 136건** — 권한/위험도/핵심 리스크 + 등급·3축·보안검토·PIM·공식문서 (3시트) |
+| `tools/admin_roles_data.py` | **역할 데이터 단일 원본.** 기준을 바꾸려면 이 파일만 수정 |
+| `tools/build_admin_role_docs.py` | 위 데이터로 PPT·Excel·JSON 생성 + HTML에 데이터 주입 |
+| `tools/admin_roles.json` | 생성된 역할 데이터 (HTML 임베드용) |
+| **공통** | |
 | `vercel.json` | 배포 설정 (보안 헤더, `noindex`) |
 
 ## 업데이트 배포
 
 ```bash
-git add -A && git commit -m "..." && git push && vercel deploy --prod --yes
+python tools/build_admin_role_docs.py && git add -A && git commit -m "..." && git push && vercel deploy --prod --yes
 ```
 
 ---
 
-## 판정 로직 요약
+## Tab 2 — M365 관리자 역할 등급 (A1/A2/A3)
+
+Microsoft Entra 기본 제공 역할 **136종**을 판정한 결과가 내장되어 있다.
+역할명(한글/영문)으로 검색하거나 목록에서 고르면 등급·위험도·핵심 리스크·보안 검토 필요 여부·승인 절차가 나온다.
+
+### 3가지 판정 기준
+
+| 기준 | 값 |
+|---|---|
+| ① 영향 범위 (Scope) | **S** 서비스·기능 한정 / **T** 테넌트 전역 |
+| ② 작업 유형 (Operation) | **R** 읽기 전용 / **W** 구성 변경 |
+| ③ 민감 자산 접근 (Sensitive) | **N** 없음 / **P** 있음 |
+
+**민감 자산 접근(P)** 은 다음 두 경로 중 하나라도 해당할 때다.
+
+- **(a) 권한 상승** — 역할 할당, 자격 증명·MFA 변경, 앱 권한 동의, 조건부 액세스·인증 정책 변경, 도메인·페더레이션 변경
+- **(b) 콘텐츠 접근** — 메일·파일·채팅·문서 원문 열람 또는 열람 위임 설정 가능
+
+### 8조합 → 3등급
+
+```
+민감 접근 P 있음                  →  A3   (범위·작업과 무관)
+N + 읽기(R) + 서비스(S)           →  A1
+N + 읽기(R) + 전역(T)             →  A2
+N + 변경(W) + 서비스(S)           →  A2
+N + 변경(W) + 전역(T)             →  A3
+```
+
+판정 결과: **A3 65건 (47%) · A2 58건 (42%) · A1 13건 (9%)**
+
+A3 비중이 높은 것은 관리자 역할 다수가 구조적으로 권한 상승 또는 콘텐츠 접근 경로를 갖기 때문이며,
+관리자 역할 요청을 Graph API보다 엄격히 통제해야 하는 근거가 된다.
+
+### 등급별 차등 적용
+
+| | A1 🟢 낮음 | A2 🟡 중간 | A3 🔴 높음 |
+|---|---|---|---|
+| 보안 검토 | 생략 (사후 이력) | 정보보호그룹 공유·의견 수렴 | **검토 필수** (승인 없이는 부여 불가) |
+| 할당 방식 | 상시 할당 가능 | PIM 적격 할당 권장 | **PIM 필수 · 상시 할당 금지** |
+| 활성화 조건 | — | MFA | MFA + 승인자 승인 + 사유 기록 (최대 8시간) |
+| 할당 기간 | 1년 | 6개월 | 3개월 |
+| 계정 분리 | 일반 계정 가능 | 일반 계정 가능 | **관리자 전용 계정 필수** |
+| 예상 소요 | 1영업일 | 3~5영업일 | 2주 이상 |
+
+> ★ 표시는 Microsoft 공식 「권한 있는 역할(Privileged role)」 — 136건 중 36건.
+> 이는 사내 등급(A1/A2/A3)과 별개의 Microsoft 자체 표시이며, 참고 지표로 함께 노출한다.
+
+---
+
+## Tab 1 — Graph API 권한 등급 (G1/G2/G3)
 
 ### 1차 분류 — 3기준 × 2값 = 8조합
 
@@ -99,32 +164,62 @@ SAR · SAW              →  G3  (전사 민감 정보)
 
 ## 기준을 바꾸려면
 
-HTML 파일 상단의 `const CFG = { … }` **설정 블록만** 수정하면 된다. 그 외 코드는 손댈 필요가 없다.
+### Tab 1 (Graph API)
 
-| 항목 | 위치 | 용도 |
-|---|---|---|
-| `CFG.DICT` | API 사전 | 권한별 정보유형(G/S/GS). 슬라이드 7의 23건이 정본 |
-| `CFG.FAMILY` | 패밀리 규칙 | 사전 미등재 권한의 정보유형 추정 |
-| `CFG.KW_LIMIT` / `KW_TENANT` | 재판정 키워드 | 대상 한정 표현 / 전사 표현 |
-| `CFG.RE_*` | 2차 분류 판정 정규식 | 최소화·동의·저장·규모 |
-| `CFG.PRIVESC` / `IMPERSONATE` / `MASSREAD` | 고위험 권한 목록 | Critical 판정 |
-| `CFG.GRADE_INFO` / `CFG.STEPS` | 등급별 절차 | 담당 조직·소요·단계 |
+HTML 파일 상단의 `const CFG = { … }` **설정 블록만** 수정하면 된다.
 
-정보보호그룹의 민감정보 기준이 확정되면 `CFG.DICT` 의 `info` 값을 교체하면 된다.
+| 항목 | 용도 |
+|---|---|
+| `CFG.DICT` | API 사전 — 권한별 정보유형(G/S/GS). 슬라이드 7의 23건이 정본 |
+| `CFG.FAMILY` | 사전 미등재 권한의 정보유형 추정 규칙 |
+| `CFG.KW_LIMIT` / `KW_TENANT` | 재판정 키워드 — 대상 한정 표현 / 전사 표현 |
+| `CFG.RE_*` | 2차 분류 판정 정규식 (최소화·동의·저장·규모) |
+| `CFG.PRIVESC` / `IMPERSONATE` / `MASSREAD` | 고위험 권한 목록 (Critical 판정) |
+| `CFG.GRADE_INFO` / `CFG.STEPS` | 등급별 절차 — 담당 조직·소요·단계 |
+
+정보보호그룹의 민감정보 기준이 확정되면 `CFG.DICT` 의 `info` 값을 교체한다.
+
+### Tab 2 (관리자 역할)
+
+HTML을 직접 고치지 말고 **`tools/admin_roles_data.py` 만 수정한 뒤 빌드**한다.
+이 파일 하나가 PPT·Excel·HTML 3종의 공통 원본이다.
+
+```bash
+python tools/build_admin_role_docs.py
+```
+
+| 항목 | 용도 |
+|---|---|
+| `ROLES` | 역할별 3축 판정 + 범주 + 핵심 리스크 (136건) |
+| `grade_of()` | 8조합 → A1/A2/A3 매핑 함수 |
+| `GRADE_DEF` | 등급별 정의·승인 절차·보안 검토·PIM·소요 |
+| `SENS_REASON` | 민감 자산 접근(P) 판정 사유 코드 |
+
+HTML의 `/* ADMIN_ROLES_DATA_START */ … /* ADMIN_ROLES_DATA_END */` 블록은
+빌드 스크립트가 자동으로 덮어쓰므로 직접 수정하지 않는다.
 
 ---
 
 ## 알아둘 점
 
 - **판정 결과는 초안(Draft)** 이다. 최종 승인은 정보보호그룹 검토와 IR 결재선을 따른다.
-- 파싱이 틀리면 화면 **② 추출된 신청 정보** 에서 직접 고칠 수 있고, 수정 즉시 재판정된다.
+- Tab 1에서 파싱이 틀리면 **② 추출된 신청 정보** 에서 직접 고칠 수 있고, 수정 즉시 재판정된다.
 - **DRM/IRM(민감도 레이블) 암호화 PPTX는 읽을 수 없다.** PowerPoint에서 열어 레이블을 해제한 뒤 올려야 한다.
 - 레거시 `.ppt` 는 미지원 — `.pptx` 로 저장 후 사용.
-- 사전에 없는 권한은 **보수적으로 민감(S)** 으로 가정하고 확인을 요청한다.
+- Graph API 사전에 없는 권한은 **보수적으로 민감(S)** 으로 가정하고 확인을 요청한다.
+- Tab 2의 역할 목록은 Microsoft Entra 기본 제공 역할 기준이며, MS가 역할을 추가·변경하면
+  `admin_roles_data.py` 를 갱신해야 한다. Intune 자체 RBAC 역할과 Purview 내부 역할은 포함하지 않는다.
 
 ## 참고
 
+**Graph API**
 - [Microsoft Graph overview](https://learn.microsoft.com/en-us/graph/overview)
 - [Microsoft Graph permissions reference](https://learn.microsoft.com/en-us/graph/permissions-reference)
 - [Limiting application permissions to specific mailboxes](https://learn.microsoft.com/en-us/graph/auth-limit-mailbox-access)
 - [Sites.Selected 개요](https://learn.microsoft.com/en-us/graph/permissions-selected-overview)
+
+**관리자 역할**
+- [Microsoft 365 관리 센터 관리자 역할 정보](https://learn.microsoft.com/ko-kr/microsoft-365/admin/add-users/about-admin-roles)
+- [Microsoft Entra 기본 제공 역할](https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference)
+- [권한 있는 역할 및 사용 권한](https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/privileged-roles-permissions)
+- [태스크별 최소 권한 있는 역할](https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/delegate-by-task)

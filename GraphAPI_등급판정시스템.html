@@ -194,6 +194,102 @@ details.guide > summary .tagline{font-weight:400;color:var(--muted);font-size:11
 @media print{
   details.guide{display:none!important}
 }
+
+/* ══ 탭 ══ */
+.tabbar{display:flex;gap:6px;margin-top:18px;border-bottom:2px solid var(--line);flex-wrap:wrap}
+.tabbar button{
+  background:transparent;border:1px solid transparent;border-bottom:none;color:var(--muted);
+  font-size:13.5px;font-weight:700;padding:10px 18px;border-radius:10px 10px 0 0;margin-bottom:-2px;
+  display:flex;align-items:center;gap:8px
+}
+.tabbar button .no{
+  display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 5px;
+  border-radius:6px;background:var(--line);color:var(--muted);font-size:10.5px
+}
+.tabbar button:hover{color:var(--navy);background:var(--card);filter:none}
+.tabbar button[aria-selected="true"]{
+  color:var(--navy);background:var(--card);border-color:var(--line);border-bottom:2px solid var(--card)
+}
+.tabbar button[aria-selected="true"] .no{background:var(--navy);color:#fff}
+.tabbar .sub{font-size:11px;font-weight:400;color:var(--muted)}
+@media (max-width:560px){ .tabbar .sub{display:none} }
+
+/* ══ Tab2 : 관리자 권한 조회 ══ */
+.searchrow{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.searchrow .fld{flex:1 1 260px;min-width:0}
+.searchrow .fld.sm{flex:0 1 160px}
+.searchrow label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.searchrow input,.searchrow select{
+  width:100%;font-family:inherit;font-size:13.5px;padding:9px 11px;border:1px solid var(--line);
+  border-radius:8px;background:var(--bg);color:var(--ink)
+}
+.searchrow input:focus,.searchrow select:focus{outline:2px solid var(--navy);outline-offset:-1px;background:var(--card)}
+#rHits{margin-top:10px;display:flex;flex-direction:column;gap:4px;max-height:260px;overflow:auto}
+#rHits .hit{
+  display:flex;align-items:center;gap:9px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;
+  background:var(--bg);cursor:pointer;text-align:left;font-family:inherit;color:var(--ink);width:100%
+}
+#rHits .hit:hover{border-color:var(--navy);background:var(--card);filter:none}
+#rHits .hit .g{
+  flex:none;font-family:var(--mono);font-weight:800;font-size:11px;padding:2px 7px;border-radius:5px;border:1px solid
+}
+#rHits .hit .ko{font-weight:700;font-size:13px}
+#rHits .hit .en{font-size:11px;color:var(--muted);font-family:var(--mono)}
+#rHits .none{font-size:12.5px;color:var(--muted);padding:10px}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.quick .lb{font-size:11px;font-weight:700;color:var(--muted);margin-right:2px}
+.quick button{
+  background:var(--bg);border:1px solid var(--line);color:var(--ink);font-size:11.5px;font-weight:600;
+  padding:5px 10px;border-radius:999px
+}
+.quick button:hover{border-color:var(--navy);color:var(--navy);filter:none}
+/* 상세 카드 */
+.rhead{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.rhead .gb{
+  flex:none;min-width:96px;text-align:center;padding:12px 16px;border-radius:12px;border:2px solid;
+  font-weight:800;font-size:26px;line-height:1
+}
+.rhead .gb .lab{display:block;font-size:10px;font-weight:700;margin-top:6px}
+.rhead .ti{flex:1;min-width:230px}
+.rhead .ti h3{margin:0;font-size:19px;color:var(--navy);letter-spacing:-.2px}
+.rhead .ti .en{font-family:var(--mono);font-size:12.5px;color:var(--muted);margin-top:2px}
+.rhead .ti .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.tag{font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;border:1px solid var(--line);background:var(--bg)}
+.tag.star{background:var(--g3bg);border-color:var(--g3);color:var(--g3)}
+.tag.cat{background:var(--card)}
+.axes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:9px;margin-top:16px}
+.ax{border:1px solid var(--line);border-radius:10px;padding:11px 13px;background:var(--bg)}
+.ax .h{font-size:10.5px;font-weight:800;color:var(--muted);letter-spacing:.4px}
+.ax .v{font-size:14px;font-weight:800;color:var(--navy);margin-top:3px}
+.ax .v .c{font-family:var(--mono);font-size:12px;background:var(--card);border:1px solid var(--line);border-radius:5px;padding:0 5px;margin-right:5px}
+.ax .n{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.5}
+.ax.p{background:var(--g3bg);border-color:var(--g3)}
+.ax.p .v{color:var(--g3)}
+.rbox{border:1px solid var(--line);border-left-width:4px;border-radius:10px;padding:12px 14px;margin-top:12px;background:var(--card)}
+.rbox .h{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.4px;margin-bottom:5px}
+.rbox .b{font-size:13.5px;line-height:1.65}
+.rbox.risk{border-left-color:var(--g3)}
+.rbox.ctl{border-left-color:var(--navy)}
+.ctlgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:12px}
+.ctl1{border:1px solid var(--line);border-radius:10px;padding:11px 13px;background:var(--bg)}
+.ctl1 .h{font-size:10.5px;font-weight:800;color:var(--muted);letter-spacing:.4px}
+.ctl1 .v{font-size:13px;font-weight:700;margin-top:3px;line-height:1.5}
+.ctl1.warn{background:var(--g3bg);border-color:var(--g3)}
+.ctl1.warn .v{color:var(--g3)}
+.doclink{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:12.5px;color:var(--navy);font-weight:700}
+/* 전체 목록 */
+.tblwrap{overflow-x:auto;margin-top:4px;max-height:520px;overflow-y:auto;border:1px solid var(--line);border-radius:10px}
+table.roles{width:100%;border-collapse:collapse;font-size:12.5px;min-width:760px}
+table.roles th{
+  position:sticky;top:0;background:var(--navy);color:#fff;font-size:11px;font-weight:700;
+  padding:8px 9px;text-align:left;white-space:nowrap;z-index:1
+}
+table.roles td{border-bottom:1px solid var(--line);padding:7px 9px;vertical-align:top}
+table.roles tbody tr{cursor:pointer}
+table.roles tbody tr:hover td{background:var(--bg)}
+table.roles .gcell{font-family:var(--mono);font-weight:800;text-align:center;white-space:nowrap}
+table.roles .en{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.cnt{font-size:11.5px;color:var(--muted);margin:10px 0 6px}
 @media print{
   body{background:#fff}
   .noprint,#drop,.btnrow{display:none!important}
@@ -213,6 +309,17 @@ details.guide > summary .tagline{font-weight:400;color:var(--muted);font-size:11
   </div>
   <span class="draft">DRAFT · 판정 결과는 초안이며 최종 승인은 정보보호그룹·IR 결재선</span>
 </header>
+
+<div class="tabbar noprint" role="tablist">
+  <button type="button" role="tab" id="tabbtn1" aria-controls="tab1" aria-selected="true">
+    <span class="no">1</span> Graph API 권한 판정 <span class="sub">신청서 PPTX 업로드 → G1/G2/G3</span>
+  </button>
+  <button type="button" role="tab" id="tabbtn2" aria-controls="tab2" aria-selected="false">
+    <span class="no">2</span> M365 관리자 권한 조회 <span class="sub">역할 검색 → A1/A2/A3</span>
+  </button>
+</div>
+
+<div id="tab1" role="tabpanel" aria-labelledby="tabbtn1">
 
 <!-- ① 업로드 -->
 <section class="card noprint">
@@ -390,11 +497,147 @@ details.guide > summary .tagline{font-weight:400;color:var(--muted);font-size:11
   <pre id="irout" class="out hide" style="margin-top:12px"></pre>
 </section>
 
+</div><!-- /tab1 -->
+
+<div id="tab2" role="tabpanel" aria-labelledby="tabbtn2" class="hide">
+
+<!-- ① 역할 조회 -->
+<section class="card noprint">
+  <h2><span class="n">1</span> 관리자 권한(역할) 조회</h2>
+  <div class="searchrow">
+    <div class="fld">
+      <label for="rq">역할명 검색 — 한글 / 영문 / 키워드</label>
+      <input id="rq" type="text" placeholder="예: 전역 관리자, Exchange, Security, 암호" autocomplete="off">
+    </div>
+    <div class="fld sm">
+      <label for="rcat">범주</label>
+      <select id="rcat"><option value="">전체 범주</option></select>
+    </div>
+    <div class="fld sm">
+      <label for="rgrade">등급</label>
+      <select id="rgrade">
+        <option value="">전체 등급</option>
+        <option value="A3">A3 · 높음</option>
+        <option value="A2">A2 · 중간</option>
+        <option value="A1">A1 · 낮음</option>
+      </select>
+    </div>
+    <div class="fld sm">
+      <label for="rsel">목록에서 선택</label>
+      <select id="rsel"><option value="">역할을 선택하세요</option></select>
+    </div>
+  </div>
+  <div id="rHits"></div>
+  <div class="quick">
+    <span class="lb">자주 찾는 역할</span>
+    <button type="button" data-r="Global Administrator">전역 관리자</button>
+    <button type="button" data-r="Global Reader">전역 읽기 권한자</button>
+    <button type="button" data-r="Exchange Administrator">Exchange 관리자</button>
+    <button type="button" data-r="SharePoint Administrator">SharePoint 관리자</button>
+    <button type="button" data-r="Teams Administrator">Teams 관리자</button>
+    <button type="button" data-r="User Administrator">사용자 관리자</button>
+    <button type="button" data-r="Security Administrator">보안 관리자</button>
+    <button type="button" data-r="Power Platform Administrator">Power Platform 관리자</button>
+    <button type="button" data-r="AI Administrator">AI 관리자</button>
+    <button type="button" data-r="Intune Administrator">Intune 관리자</button>
+  </div>
+</section>
+
+<!-- ② 상세 -->
+<section id="rDetailSec" class="card hide">
+  <h2><span class="n">2</span> 역할 상세 및 등급 판정</h2>
+  <div id="rDetail"></div>
+</section>
+
+<!-- ③ 기준 요약 -->
+<details class="guide" id="aguide">
+  <summary>M365 관리자 권한 등급 분류 기준 요약
+    <span class="tagline">— 3기준 × 2값 = 8조합 → A1/A2/A3 · Graph API 기준(G1/G2/G3)과 동일 구조</span></summary>
+  <div class="gbody">
+    <div class="gsec">
+      <h4>1차 분류 — 3가지 판정 기준</h4>
+      <div class="crit3">
+        <div class="crit">
+          <h5>① 영향 범위 (Scope)</h5><div class="q">얼마나 넓게 적용되는가?</div>
+          <div class="axis"><div class="code">S</div><div class="tx">
+            <b>서비스·기능 한정</b><br><em>단일 제품 또는 단일 기능 영역에만 적용</em></div></div>
+          <div class="axis"><div class="code a">T</div><div class="tx">
+            <b>테넌트 전역</b><br><em>디렉터리 전반(사용자·그룹·역할·앱·정책·도메인) 또는 전 서비스 교차</em></div></div>
+        </div>
+        <div class="crit">
+          <h5>② 작업 유형 (Operation)</h5><div class="q">무엇을 할 수 있는가?</div>
+          <div class="axis"><div class="code">R</div><div class="tx">
+            <b>읽기 전용</b><br><em>조회·모니터링·보고만 가능. 설정 변경 불가</em></div></div>
+          <div class="axis"><div class="code a">W</div><div class="tx">
+            <b>구성 변경</b><br><em>생성·수정·삭제·정책 변경 가능</em></div></div>
+        </div>
+        <div class="crit">
+          <h5>③ 민감 자산 접근 (Sensitive)</h5><div class="q">민감 자산에 닿는가?</div>
+          <div class="axis"><div class="code">N</div><div class="tx">
+            <b>없음</b><br><em>권한 상승 경로도 콘텐츠 접근 경로도 없음</em></div></div>
+          <div class="axis"><div class="code s">P</div><div class="tx">
+            <b>있음</b><br>
+            <em>(a) 권한 상승 — 역할 할당 · 자격 증명/MFA 변경 · 앱 권한 동의 · 조건부 액세스/인증 정책 · 도메인/페더레이션 변경</em><br>
+            <em>(b) 콘텐츠 접근 — 메일 · 파일 · 채팅 · 문서 원문 열람 또는 열람 위임 설정 가능</em></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gsec">
+      <h4>8조합 → 3등급 매핑</h4>
+      <div class="map8" id="aMap8"></div>
+      <div class="legend">핵심 — <b>민감 자산 접근(P)이 있으면 범위·작업과 무관하게 A3</b>입니다.
+        Graph API 기준에서 "Delegated면 무조건 G1"이 등급을 결정했듯, 관리자 역할은 "민감 자산 접근"이 등급을 결정합니다.
+        권한 상승과 콘텐츠 열람은 읽기/쓰기·범위와 무관하게 최고 위험이기 때문입니다.</div>
+    </div>
+
+    <div class="gsec">
+      <h4>등급별 승인 절차 및 할당 방식</h4>
+      <div class="tblwrap" style="max-height:none">
+        <table class="roles" id="aGradeTbl"></table>
+      </div>
+    </div>
+
+    <div class="gsec">
+      <h4>운영 원칙</h4>
+      <div class="crit3">
+        <div class="crit"><h5>전역 관리자 최소화</h5>
+          <div class="q">조직당 2~4명 이내로 제한하고, 상시 할당 대신 PIM 적격(Eligible) 할당으로 운영합니다.
+            계정 잠금에 대비해 권한 있는 인증 관리자를 최소 1명 유지합니다.</div></div>
+        <div class="crit"><h5>최소 권한 역제안</h5>
+          <div class="q">요청 시 "수행해야 할 작업"을 먼저 확인하고, 그 작업에 필요한 최소 권한 역할을 역제안합니다.
+            예: 암호 재설정만 필요하면 전역 관리자가 아닌 암호 관리자 · 기술 지원팀 관리자.</div></div>
+        <div class="crit"><h5>정기 회수</h5>
+          <div class="q">분기별 전수 조사로 미사용 할당을 회수하고, 할당 기간 만료 시 자동 회수 후 재심사합니다.
+            모든 관리자 계정에 MFA를 필수 적용합니다.</div></div>
+      </div>
+    </div>
+  </div>
+</details>
+
+<!-- ④ 전체 목록 -->
+<section class="card">
+  <h2><span class="n">3</span> 전체 역할 목록</h2>
+  <div class="cnt" id="rCount"></div>
+  <div class="tblwrap">
+    <table class="roles" id="rTable"></table>
+  </div>
+  <div class="legend">행을 클릭하면 상세가 열립니다 · ★ = Microsoft 공식 「권한 있는 역할(Privileged role)」 ·
+    조합 = 범위(S/T) + 작업(R/W) + 민감 접근(N/P)</div>
+</section>
+
+</div><!-- /tab2 -->
+
 <footer>
-  GAPS v1.0 · 판정 규칙 근거: 「Graph API 할당 프로세스 및 기준_260806」 슬라이드 3·4·5·7·11<br>
-  1차 분류 = 정보유형(G/S) × 접근범위(D/A) × 작업유형(R/W/X) 8조합 → G1/G2/G3 · 2차 분류 = 4개 판단 지표<br>
-  <a href="https://learn.microsoft.com/en-us/graph/overview" target="_blank" rel="noopener">Microsoft Graph overview</a> ·
-  <a href="https://learn.microsoft.com/en-us/graph/permissions-reference" target="_blank" rel="noopener">Permissions reference</a>
+  GAPS v1.1 · DX혁신실 M365 운영<br>
+  Tab 1 — Graph API : 정보유형(G/S) × 접근범위(D/A) × 작업유형(R/W/X) 8조합 → G1/G2/G3 · 2차 분류 4지표
+  <span style="opacity:.5">|</span> 근거: 「Graph API 할당 프로세스 및 기준_260806」 슬라이드 3·4·5·7·11<br>
+  Tab 2 — 관리자 역할 : 영향범위(S/T) × 작업유형(R/W) × 민감자산접근(N/P) 8조합 → A1/A2/A3
+  <span style="opacity:.5">|</span> 근거: Microsoft Entra 기본 제공 역할 / M365 관리 센터 관리자 역할<br>
+  <a href="https://learn.microsoft.com/en-us/graph/overview" target="_blank" rel="noopener">Graph overview</a> ·
+  <a href="https://learn.microsoft.com/en-us/graph/permissions-reference" target="_blank" rel="noopener">Graph permissions</a> ·
+  <a href="https://learn.microsoft.com/ko-kr/microsoft-365/admin/add-users/about-admin-roles" target="_blank" rel="noopener">M365 관리자 역할</a> ·
+  <a href="https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference" target="_blank" rel="noopener">Entra 기본 제공 역할</a>
 </footer>
 
 </div>
@@ -1413,9 +1656,251 @@ $("#btnReset").addEventListener("click",()=>{
   $("#err").classList.add("hide"); $("#guide").open=true;
   window.scrollTo({top:0,behavior:"smooth"});
 });
+/* ═══════════════════════════════════════════════════════════════════════════
+   7. 탭 전환
+   ═══════════════════════════════════════════════════════════════════════════ */
+function showTab(n){
+  [1,2].forEach(i=>{
+    $("#tab"+i).classList.toggle("hide", i!==n);
+    $("#tabbtn"+i).setAttribute("aria-selected", String(i===n));
+  });
+  if(n===2 && !ADMIN_READY) initAdmin();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+$("#tabbtn1").addEventListener("click",()=>showTab(1));
+$("#tabbtn2").addEventListener("click",()=>showTab(2));
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   8. Tab2 — M365 관리자 권한(역할) 조회
+   ═══════════════════════════════════════════════════════════════════════════ */
+/* ADMIN_ROLES_DATA_START — tools/build_admin_role_docs.py 가 이 블록을 갱신합니다. 직접 수정하지 마세요. */
+const ADMIN = {"meta":{"version":"1.0","total":136,"source":"Microsoft Entra 기본 제공 역할 / Microsoft 365 관리 센터 관리자 역할","dist":{"A3":65,"A2":58,"A1":13}},"gradeDef":{"A1":{"risk":"🟢 낮음","label":"제한적 조회","color":"1B7F3B","bg":"E7F5EC","desc":"단일 기능 영역의 읽기 전용. 조직 데이터·설정을 변경할 수 없다.","process":"운영그룹 자체 승인","review":"보안 검토 생략 (사후 이력 관리만)","pim":"상시 할당 가능","eta":"1영업일"},"A2":{"risk":"🟡 중간","label":"서비스 운영 / 전역 조회","color":"B26A00","bg":"FEF3E2","desc":"단일 서비스의 구성을 변경하거나, 테넌트 전반을 조회할 수 있다. 권한 상승·콘텐츠 열람 경로는 없다.","process":"운영그룹 주관 + 정보보호그룹 공유","review":"보안 검토 공유 (의견 수렴)","pim":"PIM 등록 권장","eta":"3~5영업일"},"A3":{"risk":"🔴 높음","label":"특권 / 전역 변경","color":"B3261E","bg":"FDECEA","desc":"권한 상승 경로 또는 사용자 콘텐츠 접근 경로를 가지거나, 테넌트 전역 구성을 변경할 수 있다.","process":"정보보호그룹 보안 검토 필수, 필요시 Committee 상정","review":"보안 검토 필수 (승인 없이는 부여 불가)","pim":"PIM 필수 · 상시 할당 금지 · MFA 필수","eta":"2주 이상"}},"comboMap":[{"combo":"SRN","scope":"S","op":"R","sens":"N","grade":"A1","desc":"서비스 한정 · 읽기 전용 · 민감 접근 없음"},{"combo":"TRN","scope":"T","op":"R","sens":"N","grade":"A2","desc":"테넌트 전역 · 읽기 전용 · 민감 접근 없음"},{"combo":"SWN","scope":"S","op":"W","sens":"N","grade":"A2","desc":"서비스 한정 · 구성 변경 · 민감 접근 없음"},{"combo":"TWN","scope":"T","op":"W","sens":"N","grade":"A3","desc":"테넌트 전역 · 구성 변경 · 민감 접근 없음"},{"combo":"SRP","scope":"S","op":"R","sens":"P","grade":"A3","desc":"서비스 한정 · 읽기 전용 · 민감 접근 있음"},{"combo":"TRP","scope":"T","op":"R","sens":"P","grade":"A3","desc":"테넌트 전역 · 읽기 전용 · 민감 접근 있음"},{"combo":"SWP","scope":"S","op":"W","sens":"P","grade":"A3","desc":"서비스 한정 · 구성 변경 · 민감 접근 있음"},{"combo":"TWP","scope":"T","op":"W","sens":"P","grade":"A3","desc":"테넌트 전역 · 구성 변경 · 민감 접근 있음"}],"axisLabel":{"S":"서비스·기능 한정","T":"테넌트 전역","R":"읽기 전용","W":"구성 변경","N":"없음","P":"있음"},"sensReason":{"ESC-ROLE":"역할 할당·PIM 관리 가능 (권한 상승)","ESC-CRED":"타 계정의 암호·MFA 등 인증 정보 변경 가능 (계정 탈취 경로)","ESC-APP":"앱 등록·앱 권한 동의 부여 가능 (권한 상승)","ESC-POLICY":"조건부 액세스·인증 정책 변경 가능 (보안 통제 무력화)","ESC-DOMAIN":"도메인·페더레이션 설정 변경 가능 (신뢰 체계 훼손)","ESC-DEVICE":"디바이스에 스크립트·구성 배포 가능 (엔드포인트 장악)","CONTENT":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","CONTENT-EDISC":"eDiscovery·콘텐츠 검색으로 전사 데이터 열람 가능"},"roles":[{"en":"AI Administrator","ko":"AI 관리자","category":"공동 작업","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"앱 등록·앱 권한 동의 부여 가능 (권한 상승)","sensReasonCode":"ESC-APP","keyRisk":"Copilot·AI 에이전트 전반 관리. 앱·에이전트에 테넌트 전체 동의를 부여할 수 있어 권한 상승 경로 (Graph 앱 권한은 제외)","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#ai-administrator"},{"en":"B2C IEF Keyset Administrator","ko":"B2C IEF 키 세트 관리자","category":"ID","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"타 계정의 암호·MFA 등 인증 정보 변경 가능 (계정 탈취 경로)","sensReasonCode":"ESC-CRED","keyRisk":"Identity Experience Framework의 페더레이션·암호화 비밀 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#b2c-ief-keyset-administrator"},{"en":"Dynamics 365 Business Central Administrator","ko":"Dynamics 365 Business Central 관리자","category":"기타","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"Business Central 환경의 모든 관리 작업 수행. 재무·업무 데이터 접근 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#dynamics-365-business-central-administrator"},{"en":"Dynamics 365 Administrator","ko":"Dynamics 365 관리자","category":"공동 작업","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"Dynamics 365 Online 전체 관리. 업무 데이터 접근 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#dynamics-365-administrator"},{"en":"Exchange Administrator","ko":"Exchange 관리자","category":"공동 작업","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"전 사용자 사서함 관리. 삭제 항목 복구, '다른 이름으로 보내기'·'대신 보내기' 위임 설정으로 타인 메일에 접근 가능","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#exchange-administrator"},{"en":"Exchange Recipient Administrator","ko":"Exchange 받는 사람 관리자","category":"공동 작업","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"Exchange Online 받는 사람 생성·수정. 사서함 속성 변경을 통한 접근 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#exchange-recipient-administrator"},{"en":"Exchange Backup Administrator","ko":"Exchange 백업 관리자","category":"공동 작업","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"Exchange 콘텐츠 백업 및 세분화된 복원. 메일 콘텐츠 접근 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#exchange-backup-administrator"},{"en":"Identity Governance Administrator","ko":"Identity Governance 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"역할 할당·PIM 관리 가능 (권한 상승)","sensReasonCode":"ESC-ROLE","keyRisk":"액세스 패키지·액세스 검토 등 ID 거버넌스 전반 관리. 접근 권한 부여 흐름을 좌우","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#identity-governance-administrator"},{"en":"Insights Analyst","ko":"Insights 분석가","category":"공동 작업","scope":"S","op":"R","sens":"P","combo":"SRP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"Viva Insights 분석 기능 사용. 임직원 활동 패턴 데이터 조회","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#insights-analyst"},{"en":"Intune Administrator","ko":"Intune 관리자","category":"디바이스","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"디바이스에 스크립트·구성 배포 가능 (엔드포인트 장악)","sensReasonCode":"ESC-DEVICE","keyRisk":"Intune 전반 관리. 관리 디바이스에 스크립트·구성을 배포할 수 있어 엔드포인트 장악 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#intune-administrator"},{"en":"Microsoft 365 Backup Administrator","ko":"Microsoft 365 백업 관리자","category":"공동 작업","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"M365 백업·복원 관리. 백업본을 통한 콘텐츠 접근 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#microsoft-365-backup-administrator"},{"en":"Microsoft Entra Joined Device Local Administrator","ko":"Microsoft Entra 조인 디바이스 로컬 관리자","category":"디바이스","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"디바이스에 스크립트·구성 배포 가능 (엔드포인트 장악)","sensReasonCode":"ESC-DEVICE","keyRisk":"모든 Entra 조인 디바이스의 로컬 관리자 그룹에 추가됨. 엔드포인트 전체에 로컬 관리자 권한","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#microsoft-entra-joined-device-local-administrator"},{"en":"Microsoft Graph Data Connect Administrator","ko":"Microsoft Graph Data Connect 관리자","category":"공동 작업","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"Graph Data Connect 설정 및 앱 권한 부여 요청 승인. 대량 M365 데이터를 Azure로 반출하는 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#microsoft-graph-data-connect-administrator"},{"en":"Power Platform Administrator","ko":"Power Platform 관리자","category":"공동 작업","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"Power Apps·Power Automate·Power BI·Fabric 및 DLP 전체 관리. 환경 관리 권한을 통해 Dataverse 데이터에 접근 가능","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#power-platform-administrator"},{"en":"Purview Workload Content Manager","ko":"Purview 워크로드 콘텐츠 관리자","category":"보안 및 준수","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"Purview 포털에서 M365 데이터를 관리하거나 제거 가능","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#purview-workload-content-manager"},{"en":"Purview Workload Content Writer","ko":"Purview 워크로드 콘텐츠 기록기","category":"보안 및 준수","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"Purview 포털에서 M365 데이터 조회 및 편집 가능","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#purview-workload-content-writer"},{"en":"Purview Workload Content Reader","ko":"Purview 워크로드 콘텐츠 읽기 권한자","category":"보안 및 준수","scope":"S","op":"R","sens":"P","combo":"SRP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"Purview 포털에서 M365 데이터 조회 가능. 읽기 전용이나 콘텐츠 원문에 접근","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#purview-workload-content-reader"},{"en":"SharePoint Advanced Management Administrator","ko":"SharePoint 고급 관리 관리자","category":"공동 작업","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"SharePoint 고급 관리 전반. 파일·폴더 이름/경로/URL 조회 및 권한 제거 가능","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#sharepoint-advanced-management-administrator"},{"en":"SharePoint Administrator","ko":"SharePoint 관리자","category":"공동 작업","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"전 사이트·사이트 모음 관리. 자신을 사이트 관리자로 지정해 모든 문서에 접근 가능","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#sharepoint-administrator"},{"en":"SharePoint Backup Administrator","ko":"SharePoint 백업 관리자","category":"공동 작업","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"SharePoint·OneDrive 백업 및 복원. 문서 콘텐츠 접근 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#sharepoint-backup-administrator"},{"en":"Viva Glint Tenant Administrator","ko":"Viva Glint 테넌트 관리자","category":"공동 작업","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"Viva Glint 설정 관리. 임직원 설문·피드백 데이터 접근 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#viva-glint-tenant-administrator"},{"en":"Windows 365 Administrator","ko":"Windows 365 관리자","category":"디바이스","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"디바이스에 스크립트·구성 배포 가능 (엔드포인트 장악)","sensReasonCode":"ESC-DEVICE","keyRisk":"클라우드 PC 프로비저닝 및 전반 관리. 사용자 데스크톱 환경 접근 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#windows-365-administrator"},{"en":"Customer Lockbox Access Approver","ko":"고객 Lockbox 액세스 승인자","category":"보안 및 준수","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"Microsoft 지원의 고객 데이터 접근 요청을 승인. 승인 시 외부인이 조직 데이터에 접근","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#customer-lockbox-access-approver"},{"en":"Customer Delegated Admin Relationship Manager","ko":"고객 위임 관리자 관계 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"역할 할당·PIM 관리 가능 (권한 상승)","sensReasonCode":"ESC-ROLE","keyRisk":"고객 테넌트의 GDAP 관계 전반 관리. 파트너 위임 관리 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#customer-delegated-admin-relationship-manager"},{"en":"Permissions Management Administrator","ko":"권한 관리 관리자","category":"ID","scope":"T","op":"W","sens":"N","combo":"TWN","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Entra 자격 관리(entitlement management) 전반 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#permissions-management-administrator"},{"en":"Privileged Role Administrator","ko":"권한 있는 역할 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"역할 할당·PIM 관리 가능 (권한 상승)","sensReasonCode":"ESC-ROLE","keyRisk":"모든 Entra 역할 할당과 PIM 전체를 관리. 스스로 전역 관리자를 부여할 수 있어 사실상 전역 관리자와 동급","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#privileged-role-administrator"},{"en":"Privileged Authentication Administrator","ko":"권한 있는 인증 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"타 계정의 암호·MFA 등 인증 정보 변경 가능 (계정 탈취 경로)","sensReasonCode":"ESC-CRED","keyRisk":"전역 관리자를 포함한 모든 사용자의 인증 방법을 재설정 가능. 관리자 계정 탈취의 직접 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#privileged-authentication-administrator"},{"en":"Compliance Data Administrator","ko":"규정 준수 데이터 관리자","category":"보안 및 준수","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"eDiscovery·콘텐츠 검색으로 전사 데이터 열람 가능","sensReasonCode":"CONTENT-EDISC","keyRisk":"규정 준수 콘텐츠 생성·관리. 전사 데이터 검색·보존 대상 지정 가능","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#compliance-data-administrator"},{"en":"Groups Administrator","ko":"그룹 관리자","category":"ID","scope":"T","op":"W","sens":"N","combo":"TWN","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"모든 그룹 생성·편집·삭제 및 그룹 정책 관리. 그룹 멤버십 변경으로 접근 권한이 간접 확대될 수 있음","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#groups-administrator"},{"en":"Helpdesk Administrator","ko":"기술 지원팀 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"타 계정의 암호·MFA 등 인증 정보 변경 가능 (계정 탈취 경로)","sensReasonCode":"ESC-CRED","keyRisk":"비관리자 암호 재설정 및 강제 로그아웃. 지원 업무 명목의 광범위한 계정 접근 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#helpdesk-administrator"},{"en":"Domain Name Administrator","ko":"도메인 이름 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"도메인·페더레이션 설정 변경 가능 (신뢰 체계 훼손)","sensReasonCode":"ESC-DOMAIN","keyRisk":"클라우드·온프레미스 도메인 관리. 도메인 검증을 통한 신뢰 탈취 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#domain-name-administrator"},{"en":"Directory Synchronization Account","ko":"디렉터리 동기화 계정","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"역할 할당·PIM 관리 가능 (권한 상승)","sensReasonCode":"ESC-ROLE","keyRisk":"Entra Connect 서비스 전용. 사람에게 절대 할당하지 말 것","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#directory-synchronization-account"},{"en":"Directory Writer","ko":"디렉터리 작성기","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"역할 할당·PIM 관리 가능 (권한 상승)","sensReasonCode":"ESC-ROLE","keyRisk":"기본 디렉터리 정보 읽기·쓰기. 서비스 계정 용도이며 사용자 직접 할당 비권장","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#directory-writer"},{"en":"Microsoft 365 Migration Administrator","ko":"마이그레이션 관리자","category":"공동 작업","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"Google Drive·Box·Dropbox·Slack 등에서 M365로 콘텐츠 마이그레이션. 이관 콘텐츠 접근 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#microsoft-365-migration-administrator"},{"en":"Security Administrator","ko":"보안 관리자","category":"보안 및 준수","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"조건부 액세스·인증 정책 변경 가능 (보안 통제 무력화)","sensReasonCode":"ESC-POLICY","keyRisk":"Defender·Entra ID 보호·Purview 등 보안 구성 전반을 변경. 보안 정책·경보 설정을 무력화할 수 있는 특권 역할","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#security-administrator"},{"en":"Security Operator","ko":"보안 연산자","category":"보안 및 준수","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"타 계정의 암호·MFA 등 인증 정보 변경 가능 (계정 탈취 경로)","sensReasonCode":"ESC-CRED","keyRisk":"보안 이벤트 관리 및 ID 격리 조치(계정 차단·세션 해지) 수행 가능","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#security-operator"},{"en":"User Administrator","ko":"사용자 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"타 계정의 암호·MFA 등 인증 정보 변경 가능 (계정 탈취 경로)","sensReasonCode":"ESC-CRED","keyRisk":"사용자 계정 생성·비활성화, 비관리자 암호 재설정, 그룹 관리. 계정 탈취 및 접근 권한 확대 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#user-administrator"},{"en":"Lifecycle Workflow Administrator","ko":"수명 주기 워크플로 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"역할 할당·PIM 관리 가능 (권한 상승)","sensReasonCode":"ESC-ROLE","keyRisk":"입·퇴사 자동화 워크플로 관리. 계정 생성·권한 부여를 자동 실행할 수 있음","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#lifecycle-workflow-administrator"},{"en":"Password Administrator","ko":"암호 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"타 계정의 암호·MFA 등 인증 정보 변경 가능 (계정 탈취 경로)","sensReasonCode":"ESC-CRED","keyRisk":"비관리자 및 암호 관리자의 암호를 재설정 가능. 계정 탈취 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#password-administrator"},{"en":"Application Developer","ko":"애플리케이션 개발자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"앱 등록·앱 권한 동의 부여 가능 (권한 상승)","sensReasonCode":"ESC-APP","keyRisk":"테넌트 설정과 무관하게 앱 등록 생성 가능. 무단 앱을 통한 데이터 반출 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#application-developer"},{"en":"Application Administrator","ko":"애플리케이션 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"앱 등록·앱 권한 동의 부여 가능 (권한 상승)","sensReasonCode":"ESC-APP","keyRisk":"앱 등록·엔터프라이즈 앱 전체 관리 및 위임/애플리케이션 권한 동의 부여 가능 (Graph 앱 권한 제외). 권한 상승 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#application-administrator"},{"en":"Agent Identity Developer","ko":"에이전트 ID 개발자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"앱 등록·앱 권한 동의 부여 가능 (권한 상승)","sensReasonCode":"ESC-APP","keyRisk":"에이전트 ID 청사진 및 보안 주체 생성 가능","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#agent-identity-developer"},{"en":"Agent Identity Administrator","ko":"에이전트 ID 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"역할 할당·PIM 관리 가능 (권한 상승)","sensReasonCode":"ESC-ROLE","keyRisk":"에이전트 ID·청사진·보안 주체 전체 관리. AI 에이전트에 권한을 부여하는 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#agent-identity-administrator"},{"en":"External Identity Provider Administrator","ko":"외부 ID 공급자 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"도메인·페더레이션 설정 변경 가능 (신뢰 체계 훼손)","sensReasonCode":"ESC-DOMAIN","keyRisk":"직접 페더레이션용 ID 공급자 구성. 외부 IdP를 통한 우회 로그인 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#external-identity-provider-administrator"},{"en":"Insights Administrator","ko":"인사이트 관리자","category":"공동 작업","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"M365 Insights 앱 관리자 권한. 임직원 협업·활동 데이터 접근","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#insights-administrator"},{"en":"Authentication Administrator","ko":"인증 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"타 계정의 암호·MFA 등 인증 정보 변경 가능 (계정 탈취 경로)","sensReasonCode":"ESC-CRED","keyRisk":"비관리자 사용자의 MFA·인증 방법을 조회·재설정 가능. MFA 우회를 통한 계정 탈취 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#authentication-administrator"},{"en":"Authentication Policy Administrator","ko":"인증 정책 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"조건부 액세스·인증 정책 변경 가능 (보안 통제 무력화)","sensReasonCode":"ESC-POLICY","keyRisk":"MFA 설정·인증 방법 정책·암호 보호 정책 변경 가능. 조직 전체 인증 통제를 약화시킬 수 있음","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#authentication-policy-administrator"},{"en":"Authentication Extensibility Administrator","ko":"인증 확장성 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"조건부 액세스·인증 정책 변경 가능 (보안 통제 무력화)","sensReasonCode":"ESC-POLICY","keyRisk":"사용자 지정 인증 확장을 생성·관리. 외부 시스템으로 인증 흐름을 우회시킬 수 있음","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#authentication-extensibility-administrator"},{"en":"Authentication Extensibility Password Administrator","ko":"인증 확장성 암호 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"타 계정의 암호·MFA 등 인증 정보 변경 가능 (계정 탈취 경로)","sensReasonCode":"ESC-CRED","keyRisk":"사용자 지정 인증의 암호 제출 이벤트를 트리거 가능","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#authentication-extensibility-password-administrator"},{"en":"Global Administrator","ko":"전역 관리자","category":"전역","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"역할 할당·PIM 관리 가능 (권한 상승)","sensReasonCode":"ESC-ROLE","keyRisk":"테넌트 전체에 무제한 권한. 모든 사용자·관리자 암호 재설정, 모든 설정 변경, Azure 구독 권한 상승까지 가능한 최고 위험 역할","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#global-administrator"},{"en":"Global Secure Access Administrator","ko":"전역 보안 액세스 관리자","category":"보안 및 준수","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"조건부 액세스·인증 정책 변경 가능 (보안 통제 무력화)","sensReasonCode":"ESC-POLICY","keyRisk":"Global Secure Internet/Private Access 전반 관리. 네트워크 접근 경로 통제","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#global-secure-access-administrator"},{"en":"Conditional Access Administrator","ko":"조건부 액세스 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"조건부 액세스·인증 정책 변경 가능 (보안 통제 무력화)","sensReasonCode":"ESC-POLICY","keyRisk":"조건부 액세스 정책 전체를 관리. MFA·디바이스 준수 요구를 해제해 전사 보안 통제를 무력화할 수 있음","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#conditional-access-administrator"},{"en":"Compliance Administrator","ko":"준수 관리자","category":"보안 및 준수","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"eDiscovery·콘텐츠 검색으로 전사 데이터 열람 가능","sensReasonCode":"CONTENT-EDISC","keyRisk":"Purview 규정 준수 구성·보고 관리. DLP·보존·eDiscovery 설정을 통해 전사 콘텐츠에 접근할 수 있는 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#compliance-administrator"},{"en":"Cloud Device Administrator","ko":"클라우드 디바이스 관리자","category":"디바이스","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"디바이스에 스크립트·구성 배포 가능 (엔드포인트 장악)","sensReasonCode":"ESC-DEVICE","keyRisk":"Entra ID 디바이스 관리 및 BitLocker 키 조회 가능. 디바이스 접근 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#cloud-device-administrator"},{"en":"Cloud Application Administrator","ko":"클라우드 애플리케이션 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"앱 등록·앱 권한 동의 부여 가능 (권한 상승)","sensReasonCode":"ESC-APP","keyRisk":"앱 프록시를 제외한 앱 등록·엔터프라이즈 앱 관리 및 권한 동의 부여 가능","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#cloud-application-administrator"},{"en":"Tenant Governance Relationship Manager","ko":"테넌트 거버넌스 관계 관리자","category":"ID","scope":"T","op":"W","sens":"N","combo":"TWN","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"거버넌스 관계 시작·종료","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#tenant-governance-relationship-manager"},{"en":"Tenant Governance Administrator","ko":"테넌트 거버넌스 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"역할 할당·PIM 관리 가능 (권한 상승)","sensReasonCode":"ESC-ROLE","keyRisk":"테넌트 거버넌스 서비스 전체 기능 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#tenant-governance-administrator"},{"en":"Tenant Creator","ko":"테넌트 작성자","category":"ID","scope":"T","op":"W","sens":"N","combo":"TWN","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"신규 Entra / B2C 테넌트 생성 가능. 관리 사각지대 테넌트 생성 위험","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#tenant-creator"},{"en":"Attribute Definition Administrator","ko":"특성 정의 관리자","category":"ID","scope":"T","op":"W","sens":"N","combo":"TWN","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"사용자 지정 보안 특성의 정의를 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#attribute-definition-administrator"},{"en":"Attribute Provisioning Administrator","ko":"특성 프로비저닝 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"앱 등록·앱 권한 동의 부여 가능 (권한 상승)","sensReasonCode":"ESC-APP","keyRisk":"앱의 사용자 지정 보안 특성 프로비저닝 구성을 변경 가능","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#attribute-provisioning-administrator"},{"en":"Attribute Assignment Administrator","ko":"특성 할당 관리자","category":"ID","scope":"T","op":"W","sens":"N","combo":"TWN","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"개체에 사용자 지정 보안 특성 할당. 특성 기반 접근 정책에 영향","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#attribute-assignment-administrator"},{"en":"Partner Tier1 Support","ko":"파트너 계층1 지원","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"타 계정의 암호·MFA 등 인증 정보 변경 가능 (계정 탈취 경로)","sensReasonCode":"ESC-CRED","keyRisk":"Microsoft 내부 전용. 일반 사용 금지 (Do not use)","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#partner-tier1-support"},{"en":"Partner Tier2 Support","ko":"파트너 계층2 지원","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"타 계정의 암호·MFA 등 인증 정보 변경 가능 (계정 탈취 경로)","sensReasonCode":"ESC-CRED","keyRisk":"Microsoft 내부 전용. 일반 사용 금지 (Do not use)","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#partner-tier2-support"},{"en":"Fabric Administrator","ko":"패브릭 관리자","category":"공동 작업","scope":"S","op":"W","sens":"P","combo":"SWP","grade":"A3","risk":"🔴 높음","privileged":false,"sensReason":"메일·파일·채팅·문서 원문 접근 또는 접근 위임 설정 가능","sensReasonCode":"CONTENT","keyRisk":"Fabric·Power BI 전체 관리 기능 및 감사 검토. 작업 영역 데이터 접근 경로","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#fabric-administrator"},{"en":"Hybrid Identity Administrator","ko":"하이브리드 ID 관리자","category":"ID","scope":"T","op":"W","sens":"P","combo":"TWP","grade":"A3","risk":"🔴 높음","privileged":true,"sensReason":"도메인·페더레이션 설정 변경 가능 (신뢰 체계 훼손)","sensReasonCode":"ESC-DOMAIN","keyRisk":"AD-Entra 클라우드 프로비저닝 및 페더레이션 설정 관리. 온프레미스 신뢰 체계 훼손 가능","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#hybrid-identity-administrator"},{"en":"AI Reader","ko":"AI 리더","category":"읽기 전용","scope":"T","op":"R","sens":"N","combo":"TRN","grade":"A2","risk":"🟡 중간","privileged":true,"sensReason":"","sensReasonCode":"","keyRisk":"Copilot·AI 에이전트 전반 및 에이전트 ID 조회. 읽기 전용","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#ai-reader"},{"en":"Azure DevOps Administrator","ko":"Azure DevOps 관리자","category":"기타","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Azure DevOps 정책·설정 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#azure-devops-administrator"},{"en":"Azure Information Protection Administrator","ko":"Azure Information Protection 관리자","category":"보안 및 준수","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"민감도 레이블·보호 정책 관리. 보호 정책 변경으로 문서 암호화가 해제될 수 있어 상향 검토 필요","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#azure-information-protection-administrator"},{"en":"B2C IEF Policy Administrator","ko":"B2C IEF 정책 관리자","category":"ID","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Identity Experience Framework 트러스트 프레임워크 정책 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#b2c-ief-policy-administrator"},{"en":"Cloud App Security Administrator","ko":"Cloud App Security 관리자","category":"보안 및 준수","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Defender for Cloud Apps 전반 관리. 세션 정책·앱 차단 설정 변경","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#cloud-app-security-administrator"},{"en":"Desktop Analytics Administrator","ko":"Desktop Analytics 관리자","category":"디바이스","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"데스크톱 관리 도구 및 서비스 접근·관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#desktop-analytics-administrator"},{"en":"Dragon Administrator","ko":"Dragon 관리자","category":"기타","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Microsoft Dragon 관리 센터 전반 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#dragon-administrator"},{"en":"Edge Administrator","ko":"Edge 관리자","category":"기타","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Microsoft Edge의 Internet Explorer 모드 사이트 목록 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#edge-administrator"},{"en":"Entra Backup Administrator","ko":"Entra Backup 관리자","category":"ID","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Microsoft Entra 백업 전반 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#entra-backup-administrator"},{"en":"IoT Device Administrator","ko":"IoT 디바이스 관리자","category":"디바이스","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"IoT 디바이스 프로비저닝·수명주기·인증서 구성","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#iot-device-administrator"},{"en":"Kaizala Administrator","ko":"Kaizala 관리자","category":"기타","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Microsoft Kaizala 설정 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#kaizala-administrator"},{"en":"Microsoft Hardware Warranty Administrator","ko":"Microsoft 하드웨어 보증 관리자","category":"디바이스","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Microsoft 하드웨어 보증 청구·자격 전반 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#microsoft-hardware-warranty-administrator"},{"en":"Office Apps Administrator","ko":"Office 앱 관리자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Office 클라우드 정책 관리, Office 스크립트 설정 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#office-apps-administrator"},{"en":"People Administrator","ko":"People 관리자","category":"ID","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"전 사용자의 프로필 사진·대명사·이름 발음·프로필 카드 설정 변경","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#people-administrator"},{"en":"SharePoint Embedded Administrator","ko":"SharePoint Embedded 관리자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"SharePoint Embedded 컨테이너 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#sharepoint-embedded-administrator"},{"en":"Teams Administrator","ko":"Teams 관리자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Teams 서비스 전반 관리. 모임·페더레이션·조직 전체 설정 변경","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#teams-administrator"},{"en":"Teams Device Administrator","ko":"Teams 디바이스 관리자","category":"디바이스","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Teams 인증 디바이스 관리 작업 수행","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#teams-device-administrator"},{"en":"Teams External Collaborations Administrator","ko":"Teams 외부 공동 작업 관리자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Teams 외부 공동 작업 정책·설정 관리. 외부 조직과의 통신 허용 범위 결정","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#teams-external-collaborations-administrator"},{"en":"Teams Telephony Administrator","ko":"Teams 전화 통신 관리자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Teams 음성·전화 기능 관리 및 문제 해결","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#teams-telephony-administrator"},{"en":"Teams Communications Administrator","ko":"Teams 통신 관리자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Teams 통화·모임 기능 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#teams-communications-administrator"},{"en":"Virtual Visits Administrator","ko":"Virtual Visits 관리자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Virtual Visits 정보·메트릭 관리 및 공유","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#virtual-visits-administrator"},{"en":"Viva Goals Administrator","ko":"Viva Goals 관리자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Viva Goals 전반 및 구성 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#viva-goals-administrator"},{"en":"Viva Pulse Administrator","ko":"Viva Pulse 관리자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Viva Pulse 앱 설정 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#viva-pulse-administrator"},{"en":"Windows Update Deployment Administrator","ko":"Windows 업데이트 배포 관리자","category":"디바이스","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Windows Update 배포 전반 생성·관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#windows-update-deployment-administrator"},{"en":"Yammer Administrator","ko":"Yammer 관리자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Viva Engage(Yammer) 서비스 전반 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#yammer-administrator"},{"en":"Search Administrator","ko":"검색 관리자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Microsoft Search 구성 및 검색 결과 콘텐츠 전체 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#search-administrator"},{"en":"Search Editor","ko":"검색 편집기","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"북마크·Q&A 등 편집 콘텐츠 생성·관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#search-editor"},{"en":"Guest Inviter","ko":"게스트 초대자","category":"ID","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"외부 게스트 사용자 초대 가능. 외부인 유입 통제 필요","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#guest-inviter"},{"en":"Attack Simulation Administrator","ko":"공격 시뮬레이션 관리자","category":"보안 및 준수","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"피싱 시뮬레이션 캠페인 생성·관리. 실제 사용자 대상 메일 발송이 수반됨","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#attack-simulation-administrator"},{"en":"Attack Payload Author","ko":"공격 페이로드 작성자","category":"보안 및 준수","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"공격 시뮬레이션 페이로드 작성","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#attack-payload-author"},{"en":"Network Administrator","ko":"네트워크 관리자","category":"디바이스","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"네트워크 위치 관리 및 엔터프라이즈 네트워크 설계 인사이트 검토","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#network-administrator"},{"en":"Directory Reader","ko":"디렉터리 읽기 권한자","category":"읽기 전용","scope":"T","op":"R","sens":"N","combo":"TRN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"기본 디렉터리 정보 조회","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#directory-reader"},{"en":"License Administrator","ko":"라이선스 관리자","category":"청구","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"사용자·그룹 라이선스 할당·제거 및 사용 위치 편집","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#license-administrator"},{"en":"Security Reader","ko":"보안 읽기 권한자","category":"읽기 전용","scope":"T","op":"R","sens":"N","combo":"TRN","grade":"A2","risk":"🟡 중간","privileged":true,"sensReason":"","sensReasonCode":"","keyRisk":"Defender·ID 보호·PIM·로그인/감사 로그·Purview 보안 정보 조회. 읽기 전용이나 보안 태세 전반이 노출됨","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#security-reader"},{"en":"Skype for Business Administrator","ko":"비즈니스용 Skype 관리자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"비즈니스용 Skype 전반 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#skype-for-business-administrator"},{"en":"People Manager","ko":"사용자 프로필 관리자 (People Manager)","category":"ID","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"조직 전반의 사용자 프로필 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#people-manager"},{"en":"Service Support Administrator","ko":"서비스 지원 관리자","category":"읽기 전용","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"서비스 요청 관리, 메시지 센터 조회, 서비스 상태 모니터링","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#service-support-administrator"},{"en":"Agent Registry Administrator","ko":"에이전트 레지스트리 관리자","category":"기타","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Entra ID 에이전트 레지스트리 서비스 전반 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#agent-registry-administrator"},{"en":"External ID User Flow Administrator","ko":"외부 ID 사용자 흐름 관리자","category":"ID","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"외부 ID 사용자 흐름 생성·관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#external-id-user-flow-administrator"},{"en":"External ID User Flow Attribute Administrator","ko":"외부 ID 사용자 흐름 특성 관리자","category":"ID","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"사용자 흐름에서 사용하는 특성 스키마 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#external-id-user-flow-attribute-administrator"},{"en":"Places Manager","ko":"위치 관리자","category":"기타","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Microsoft Places 서비스 전반 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#places-manager"},{"en":"Global Reader","ko":"전역 읽기 권한자","category":"읽기 전용","scope":"T","op":"R","sens":"N","combo":"TRN","grade":"A2","risk":"🟡 중간","privileged":true,"sensReason":"","sensReasonCode":"","keyRisk":"전역 관리자가 볼 수 있는 모든 관리 기능·설정을 조회. 변경은 불가하나 M365·Entra 전반의 광범위한 정보가 노출됨","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#global-reader"},{"en":"Organizational Data Source Administrator","ko":"조직 데이터 원본 관리자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"M365로 수집되는 조직 데이터 원본 설정·관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#organizational-data-source-administrator"},{"en":"Organizational Message Approver","ko":"조직 메시지 승인자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"전 직원 대상 조직 메시지 검토·승인·거부","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#organizational-message-approver"},{"en":"Organizational Message Writer","ko":"조직 메시지 작성자","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Microsoft 제품 화면에 표시되는 조직 메시지 작성·게시","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#organizational-message-writer"},{"en":"Organization Branding Administrator","ko":"조직 브랜딩 관리자","category":"기타","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"테넌트 로그인 화면 등 조직 브랜딩 관리. 피싱 유사 화면 구성 우려","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#organization-branding-administrator"},{"en":"Knowledge Admin","ko":"지식 관리자 (Knowledge Admin)","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"지식·학습 등 인텔리전트 기능 구성","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#knowledge-admin"},{"en":"Knowledge Manager","ko":"지식 매니저 (Knowledge Manager)","category":"공동 작업","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"토픽·지식 생성·관리·승격","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#knowledge-manager"},{"en":"Billing Administrator","ko":"청구 관리자","category":"청구","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"구매·구독·서비스 요청 관리. 비용 발생 및 신규 서비스 활성화 가능","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#billing-administrator"},{"en":"Tenant Governance Relationship Reader","ko":"테넌트 거버넌스 관계 판독기","category":"읽기 전용","scope":"T","op":"R","sens":"N","combo":"TRN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"테넌트 거버넌스 관계 및 관련 개체 조회","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#tenant-governance-relationship-reader"},{"en":"Tenant Governance Reader","ko":"테넌트 거버넌스 판독기","category":"읽기 전용","scope":"T","op":"R","sens":"N","combo":"TRN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"테넌트 거버넌스 데이터 전체 조회","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#tenant-governance-reader"},{"en":"Attribute Log Administrator","ko":"특성 로그 관리자","category":"보안 및 준수","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"사용자 지정 보안 특성 관련 감사 로그 조회 및 진단 설정 구성","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#attribute-log-administrator"},{"en":"Attribute Definition Reader","ko":"특성 정의 읽기 권한자","category":"읽기 전용","scope":"T","op":"R","sens":"N","combo":"TRN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"사용자 지정 보안 특성 정의 조회","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#attribute-definition-reader"},{"en":"Attribute Provisioning Reader","ko":"특성 프로비저닝 판독기","category":"읽기 전용","scope":"T","op":"R","sens":"N","combo":"TRN","grade":"A2","risk":"🟡 중간","privileged":true,"sensReason":"","sensReasonCode":"","keyRisk":"앱의 사용자 지정 보안 특성 프로비저닝 구성 조회","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#attribute-provisioning-reader"},{"en":"Attribute Assignment Reader","ko":"특성 할당 읽기 권한자","category":"읽기 전용","scope":"T","op":"R","sens":"N","combo":"TRN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"개체의 사용자 지정 보안 특성 값 조회","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#attribute-assignment-reader"},{"en":"Printer Administrator","ko":"프린터 관리자","category":"디바이스","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"프린터 및 프린터 커넥터 전반 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#printer-administrator"},{"en":"Printer Technician","ko":"프린터 기술자","category":"디바이스","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"프린터 등록·해제 및 상태 업데이트","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#printer-technician"},{"en":"Extended Directory User Administrator","ko":"확장 디렉터리 사용자 관리자","category":"ID","scope":"S","op":"W","sens":"N","combo":"SWN","grade":"A2","risk":"🟡 중간","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Teams 확장 디렉터리의 외부 사용자 프로필 관리","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#extended-directory-user-administrator"},{"en":"Entra Backup Reader","ko":"Entra Backup 판독기","category":"읽기 전용","scope":"S","op":"R","sens":"N","combo":"SRN","grade":"A1","risk":"🟢 낮음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Microsoft Entra 백업 조회","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#entra-backup-reader"},{"en":"Insights Business Leader","ko":"Insights 비즈니스 리더","category":"읽기 전용","scope":"S","op":"R","sens":"N","combo":"SRN","grade":"A1","risk":"🟢 낮음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Viva Insights 대시보드·인사이트 조회 및 공유","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#insights-business-leader"},{"en":"Microsoft Hardware Warranty Specialist","ko":"Microsoft 하드웨어 보증 전문가","category":"디바이스","scope":"S","op":"R","sens":"N","combo":"SRN","grade":"A1","risk":"🟢 낮음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Microsoft 하드웨어 보증 청구 생성·조회","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#microsoft-hardware-warranty-specialist"},{"en":"Teams Reader","ko":"Teams 읽기 권한자","category":"읽기 전용","scope":"S","op":"R","sens":"N","combo":"SRN","grade":"A1","risk":"🟢 낮음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"Teams 관리 센터 전체 조회 (변경 불가)","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#teams-reader"},{"en":"Teams Communications Support Engineer","ko":"Teams 통신 지원 엔지니어","category":"공동 작업","scope":"S","op":"R","sens":"N","combo":"SRN","grade":"A1","risk":"🟢 낮음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"고급 도구로 Teams 통신 문제 해결. 통화 상세 기록 조회","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#teams-communications-support-engineer"},{"en":"Teams Communications Support Specialist","ko":"Teams 통신 지원 전문가","category":"공동 작업","scope":"S","op":"R","sens":"N","combo":"SRN","grade":"A1","risk":"🟢 낮음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"기본 도구로 Teams 통신 문제 해결","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#teams-communications-support-specialist"},{"en":"Message Center Privacy Reader","ko":"메시지 센터 개인 정보 읽기 권한자","category":"읽기 전용","scope":"S","op":"R","sens":"N","combo":"SRN","grade":"A1","risk":"🟢 낮음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"메시지 센터의 개인정보·보안 메시지 조회. 전역 관리자와 함께 데이터 개인정보 메시지 열람 권한 보유","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#message-center-privacy-reader"},{"en":"Message Center Reader","ko":"메시지 센터 읽기 권한자","category":"읽기 전용","scope":"S","op":"R","sens":"N","combo":"SRN","grade":"A1","risk":"🟢 낮음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"메시지 센터 알림 조회 및 Entra 사용자·그룹 읽기 전용 접근","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#message-center-reader"},{"en":"Reports Reader","ko":"보고서 읽기 권한자","category":"읽기 전용","scope":"S","op":"R","sens":"N","combo":"SRN","grade":"A1","risk":"🟢 낮음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"사용 현황·활동·로그인 보고서 조회. 개인별 활동 데이터가 포함될 수 있음","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#reports-reader"},{"en":"Usage Summary Reports Reader","ko":"사용 요약 보고서 읽기 권한자","category":"읽기 전용","scope":"S","op":"R","sens":"N","combo":"SRN","grade":"A1","risk":"🟢 낮음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"사용 요약 보고서 및 채택 점수 조회 (개인 식별 정보 제외)","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#usage-summary-reports-reader"},{"en":"User Experience Success Manager","ko":"사용자 경험 성공 관리자","category":"읽기 전용","scope":"S","op":"R","sens":"N","combo":"SRN","grade":"A1","risk":"🟢 낮음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"환경 인사이트·채택 점수·메시지 센터 조회","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#user-experience-success-manager"},{"en":"Global Secure Access Log Reader","ko":"전역 보안 액세스 로그 판독기","category":"읽기 전용","scope":"S","op":"R","sens":"N","combo":"SRN","grade":"A1","risk":"🟢 낮음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"네트워크 트래픽 로그 읽기 전용 접근","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#global-secure-access-log-reader"},{"en":"Attribute Log Reader","ko":"특성 로그 판독기","category":"읽기 전용","scope":"S","op":"R","sens":"N","combo":"SRN","grade":"A1","risk":"🟢 낮음","privileged":false,"sensReason":"","sensReasonCode":"","keyRisk":"사용자 지정 보안 특성 관련 감사 로그 조회","doc":"https://learn.microsoft.com/ko-kr/entra/identity/role-based-access-control/permissions-reference#attribute-log-reader"}]};
+/* ADMIN_ROLES_DATA_END */
+
+let ADMIN_READY=false, ADMIN_SEL=null;
+const GRISK={A1:"🟢 낮음",A2:"🟡 중간",A3:"🔴 높음"};
+
+/* 역할명 우선 정렬 — 이름에 맞은 역할이 설명만 맞은 역할보다 항상 위로 온다 */
+function matchRank(r,q){
+  const ko=r.ko.toLowerCase(), en=r.en.toLowerCase();
+  if(ko.startsWith(q)||en.startsWith(q)) return 0;
+  if(ko.includes(q)) return 1;
+  if(en.includes(q)) return 2;
+  if((r.category||"").toLowerCase().includes(q)) return 3;
+  if((r.keyRisk+" "+r.sensReason).toLowerCase().includes(q)) return 4;
+  return -1;
+}
+function aFilter(){
+  if(!ADMIN) return [];
+  const q=($("#rq").value||"").trim().toLowerCase();
+  const cat=$("#rcat").value, gr=$("#rgrade").value;
+  const base=ADMIN.roles.filter(r=>
+    (!cat||r.category===cat) && (!gr||r.grade===gr));
+  if(!q) return base;
+  const GO=["A3","A2","A1"];
+  return base.map(r=>({r,k:matchRank(r,q)})).filter(x=>x.k>=0)
+    .sort((a,b)=>a.k-b.k || GO.indexOf(a.r.grade)-GO.indexOf(b.r.grade) || a.r.ko.localeCompare(b.r.ko,"ko"))
+    .map(x=>x.r);
+}
+function aHitRow(r){
+  return `<button type="button" class="hit" data-en="${esc(r.en)}">
+    <span class="g G${r.grade[1]}" style="color:var(--g${r.grade[1]});background:var(--g${r.grade[1]}bg);border-color:var(--g${r.grade[1]})">${r.grade}</span>
+    <span><span class="ko">${esc(r.ko)}</span>${r.privileged?' <span class="tag star" style="font-size:9.5px;padding:1px 5px">★</span>':""}
+      <span class="en">${esc(r.en)}</span></span>
+  </button>`;
+}
+function renderHits(){
+  const q=($("#rq").value||"").trim();
+  const box=$("#rHits");
+  if(!q){ box.innerHTML=""; return; }
+  const list=aFilter();
+  box.innerHTML = list.length
+    ? list.slice(0,14).map(aHitRow).join("") +
+      (list.length>14?`<div class="none">외 ${list.length-14}건 — 검색어를 더 입력하거나 아래 전체 목록에서 확인하세요.</div>`:"")
+    : `<div class="none">일치하는 역할이 없습니다. 한글·영문 역할명 또는 키워드(예: 암호, Exchange, Security)로 검색해 보세요.</div>`;
+  box.querySelectorAll(".hit").forEach(b=>b.addEventListener("click",()=>selectRole(b.dataset.en)));
+}
+function renderTable(){
+  const list=aFilter();
+  $("#rCount").innerHTML=`총 <b>${ADMIN.roles.length}</b>개 역할 중 <b>${list.length}</b>건 표시 · `+
+    ["A3","A2","A1"].map(g=>`${g} ${list.filter(r=>r.grade===g).length}`).join(" · ");
+  $("#rTable").innerHTML=`<thead><tr>
+      <th>등급</th><th>위험도</th><th>역할명</th><th>범주</th><th>조합</th><th>핵심 리스크</th></tr></thead>
+    <tbody>${list.map(r=>`<tr data-en="${esc(r.en)}">
+      <td class="gcell" style="color:var(--g${r.grade[1]});background:var(--g${r.grade[1]}bg)">${r.grade}${r.privileged?"★":""}</td>
+      <td style="white-space:nowrap">${GRISK[r.grade]}</td>
+      <td><b>${esc(r.ko)}</b><div class="en">${esc(r.en)}</div></td>
+      <td style="white-space:nowrap">${esc(r.category)}</td>
+      <td class="gcell">${r.combo}</td>
+      <td>${esc(r.keyRisk)}</td></tr>`).join("")}</tbody>`;
+  $("#rTable").querySelectorAll("tbody tr").forEach(tr=>
+    tr.addEventListener("click",()=>selectRole(tr.dataset.en)));
+}
+function renderSelect(){
+  const list=aFilter();
+  const byGrade={A3:[],A2:[],A1:[]};
+  list.forEach(r=>byGrade[r.grade].push(r));
+  $("#rsel").innerHTML=`<option value="">역할을 선택하세요 (${list.length}건)</option>`+
+    ["A3","A2","A1"].filter(g=>byGrade[g].length).map(g=>
+      `<optgroup label="${g} · ${GRISK[g]} (${byGrade[g].length}건)">`+
+      byGrade[g].map(r=>`<option value="${esc(r.en)}">${esc(r.ko)} — ${esc(r.en)}</option>`).join("")+
+      `</optgroup>`).join("");
+  if(ADMIN_SEL) $("#rsel").value=ADMIN_SEL.en;
+}
+function selectRole(en){
+  const r=ADMIN.roles.find(x=>x.en===en); if(!r) return;
+  ADMIN_SEL=r;
+  $("#rsel").value=en;
+  const g=r.grade, n=g[1], gd=ADMIN.gradeDef[g];
+  const AX=ADMIN.axisLabel;
+  const sensP = r.sens==="P";
+  const steps = {
+    A1:[["요청 접수 및 수행 작업 확인","요청자 / DX운영그룹"],
+        ["최소 권한 역할 적정성 검토","DX운영그룹"],
+        ["역할 할당","M365 운영"],
+        ["할당 이력 등록 · 분기 전수 조사 대상 등록","DX운영그룹"]],
+    A2:[["요청 접수 및 수행 작업 확인","요청자 / DX운영그룹"],
+        ["최소 권한 역할 적정성 검토 · 대체 역할 역제안","DX운영그룹"],
+        ["정보보호그룹 공유 및 보안 의견 수렴","정보보호그룹"],
+        ["IR 결재 상신 및 승인","요청자"],
+        ["PIM 적격 할당 등록 (MFA 조건)","M365 운영"],
+        ["할당 이력 등록 · 6개월 후 연장 심사","DX운영그룹"]],
+    A3:[["요청 접수 및 수행 작업 확인","요청자 / DX운영그룹"],
+        ["최소 권한 역할 적정성 검토 · 대체 역할 역제안 (필수)","DX운영그룹"],
+        ["정보보호그룹 보안 검토 (승인 없이는 부여 불가)","정보보호그룹"],
+        ["필요시 Committee 상정 및 의사결정","DX운영그룹 / Committee"],
+        ["관리자 전용 계정 준비 (일반 계정과 분리)","요청자"],
+        ["IR 결재 상신 및 승인","요청자"],
+        ["PIM 적격 할당 등록 — 승인자 지정 · 사유 기록 · 최대 8시간","M365 운영"],
+        ["활성화 로그 상시 점검 · 3개월 후 연장 심사","DX운영그룹 / 정보보호그룹"]],
+  }[g];
+  const ctl = {
+    A1:[["보안 검토","보안 검토 생략 (사후 이력 관리만)",false],
+        ["할당 방식","상시 할당 가능",false],
+        ["활성화 조건","별도 조건 없음",false],
+        ["할당 기간","1년 (연장 심사)",false],
+        ["계정 분리","일반 업무 계정 가능",false]],
+    A2:[["보안 검토","정보보호그룹 공유 · 의견 수렴",false],
+        ["할당 방식","PIM 적격(Eligible) 할당 권장",false],
+        ["활성화 조건","MFA",false],
+        ["할당 기간","6개월 (연장 심사)",false],
+        ["계정 분리","일반 업무 계정 가능",false]],
+    A3:[["보안 검토","정보보호그룹 검토 필수 — 승인 없이는 부여 불가",true],
+        ["할당 방식","PIM 적격 할당 필수 · 상시(Active) 할당 금지",true],
+        ["활성화 조건","MFA + 승인자 승인 + 사유 기록 · 최대 8시간",true],
+        ["할당 기간","3개월 (연장 심사)",false],
+        ["계정 분리","관리자 전용 계정 필수",true]],
+  }[g];
+
+  $("#rDetail").innerHTML = `
+    <div class="rhead">
+      <div class="gb G${n}">${g}<span class="lab">${esc(gd.label)}</span></div>
+      <div class="ti">
+        <h3>${esc(r.ko)}</h3>
+        <div class="en">${esc(r.en)}</div>
+        <div class="tags">
+          <span class="tag" style="color:var(--g${n});border-color:var(--g${n});background:var(--g${n}bg)">${GRISK[g]}</span>
+          <span class="tag cat">범주 · ${esc(r.category)}</span>
+          <span class="tag cat">조합 · <b style="font-family:var(--mono)">${r.combo}</b></span>
+          ${r.privileged?'<span class="tag star">★ Microsoft 공식 「권한 있는 역할」</span>':""}
+        </div>
+      </div>
+    </div>
+
+    <div class="axes">
+      <div class="ax"><div class="h">① 영향 범위 (SCOPE)</div>
+        <div class="v"><span class="c">${r.scope}</span>${esc(AX[r.scope])}</div>
+        <div class="n">${r.scope==="T"
+          ? "디렉터리 전반(사용자·그룹·역할·앱·정책·도메인) 또는 전 서비스에 교차 적용됩니다."
+          : "단일 제품 또는 단일 기능 영역에만 적용됩니다."}</div></div>
+      <div class="ax"><div class="h">② 작업 유형 (OPERATION)</div>
+        <div class="v"><span class="c">${r.op}</span>${esc(AX[r.op])}</div>
+        <div class="n">${r.op==="W"
+          ? "생성·수정·삭제 및 정책 변경이 가능합니다."
+          : "조회·모니터링·보고만 가능하며 설정을 변경할 수 없습니다."}</div></div>
+      <div class="ax${sensP?" p":""}"><div class="h">③ 민감 자산 접근 (SENSITIVE)</div>
+        <div class="v"><span class="c">${r.sens}</span>${esc(AX[r.sens])}</div>
+        <div class="n">${sensP
+          ? "<b>"+esc(r.sensReason)+"</b><br>이 축이 있으면 범위·작업과 무관하게 <b>A3</b>로 판정합니다."
+          : "권한 상승 경로도 콘텐츠 접근 경로도 없습니다."}</div></div>
+    </div>
+
+    <div class="rbox risk"><div class="h">핵심 리스크</div><div class="b">${esc(r.keyRisk)}</div></div>
+    <div class="rbox ctl"><div class="h">등급 판정 근거</div><div class="b">
+      <b style="font-family:var(--mono)">${r.combo}</b>
+      = 범위 ${esc(AX[r.scope])}(${r.scope}) + 작업 ${esc(AX[r.op])}(${r.op}) + 민감 접근 ${esc(AX[r.sens])}(${r.sens})
+      → <b style="color:var(--g${n})">${g} · ${esc(gd.label)}</b><br>
+      <span style="color:var(--muted);font-size:12.5px">${esc(gd.desc)}</span>
+    </div></div>
+
+    <div class="ctlgrid">
+      ${ctl.map(([h,v,w])=>`<div class="ctl1${w?" warn":""}"><div class="h">${esc(h)}</div><div class="v">${esc(v)}</div></div>`).join("")}
+      <div class="ctl1"><div class="h">예상 소요</div><div class="v">${esc(gd.eta)}</div></div>
+      <div class="ctl1"><div class="h">모니터링</div><div class="v">${g==="A3"?"분기 전수 조사 + 활성화 로그 상시 점검":"분기 전수 조사"}</div></div>
+    </div>
+
+    <div style="margin-top:16px"><div class="rbox ctl"><div class="h">승인 절차</div>
+      <ol class="steps" style="margin-top:4px">${steps.map(([s,w])=>
+        `<li>${esc(s)}<span class="who">${esc(w)}</span></li>`).join("")}</ol></div></div>
+
+    ${g==="A3"?`<div class="halt" style="margin-top:12px">이 역할은 <b>정보보호그룹 보안 검토를 통과해야만</b> 부여할 수 있습니다.
+      요청 전에 "수행해야 할 작업"을 먼저 정의하고, 그 작업만 가능한 더 낮은 등급의 역할로 대체할 수 있는지 검토해 주십시오.</div>`:""}
+    ${r.en==="Global Administrator"?`<div class="halt" style="margin-top:12px">전역 관리자는 조직당 <b>2~4명 이내</b>로 제한합니다.
+      신규 부여는 원칙적으로 승인되지 않으며, 필요한 작업에 대응하는 개별 역할로 대체합니다.
+      계정 잠금에 대비해 권한 있는 인증 관리자를 최소 1명 유지합니다.</div>`:""}
+
+    <a class="doclink" href="${esc(r.doc)}" target="_blank" rel="noopener">Microsoft 공식 문서에서 이 역할의 상세 권한 확인 →</a>`;
+
+  $("#rDetailSec").classList.remove("hide");
+  $("#aguide").open=false;
+  $("#rDetailSec").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function initAdmin(){
+  if(ADMIN_READY) return;
+  if(!ADMIN){
+    $("#rHits").innerHTML=`<div class="none">역할 데이터가 로드되지 않았습니다.
+      tools/build_admin_role_docs.py 를 실행하여 데이터를 주입해 주세요.</div>`;
+    return;
+  }
+  ADMIN_READY=true;
+  const cats=[...new Set(ADMIN.roles.map(r=>r.category))].sort();
+  $("#rcat").innerHTML=`<option value="">전체 범주 (${ADMIN.roles.length}건)</option>`+
+    cats.map(c=>`<option value="${esc(c)}">${esc(c)} (${ADMIN.roles.filter(r=>r.category===c).length})</option>`).join("");
+
+  $("#aMap8").innerHTML=ADMIN.comboMap.map(m=>`
+    <div class="mrow G${m.grade[1]}">
+      <div class="cmb"><span>${m.combo}</span></div>
+      <div class="gg">${m.grade}</div>
+      <div class="desc"><b>${esc(m.desc)}</b>
+        <em>범위 ${esc(ADMIN.axisLabel[m.scope])} · 작업 ${esc(ADMIN.axisLabel[m.op])} · 민감 접근 ${esc(ADMIN.axisLabel[m.sens])}</em></div>
+    </div>`).join("");
+
+  $("#aGradeTbl").innerHTML=`<thead><tr>
+      <th>등급</th><th>위험도</th><th>구분</th><th>정의</th><th>승인 절차</th><th>보안 검토</th><th>PIM / 할당 방식</th><th>소요</th>
+    </tr></thead><tbody>${["A3","A2","A1"].map(g=>{
+      const d=ADMIN.gradeDef[g];
+      return `<tr>
+        <td class="gcell" style="color:var(--g${g[1]});background:var(--g${g[1]}bg)">${g}</td>
+        <td style="white-space:nowrap">${GRISK[g]}</td><td style="white-space:nowrap">${esc(d.label)}</td>
+        <td>${esc(d.desc)}</td><td>${esc(d.process)}</td><td>${esc(d.review)}</td>
+        <td>${esc(d.pim)}</td><td style="white-space:nowrap">${esc(d.eta)}</td></tr>`;
+    }).join("")}</tbody>`;
+
+  const refresh=()=>{ renderHits(); renderTable(); renderSelect(); };
+  $("#rq").addEventListener("input",refresh);
+  $("#rcat").addEventListener("change",refresh);
+  $("#rgrade").addEventListener("change",refresh);
+  $("#rsel").addEventListener("change",e=>{ if(e.target.value) selectRole(e.target.value); });
+  document.querySelectorAll(".quick button").forEach(b=>
+    b.addEventListener("click",()=>{ $("#rq").value=""; $("#rcat").value=""; $("#rgrade").value="";
+      refresh(); selectRole(b.dataset.r); }));
+  refresh();
+}
+
 /* 자체 점검용 (콘솔에서 GAPS.judge(...) 호출 가능) */
 window.GAPS={judge,extractFields,parsePptx,splitApi,lookupInfo,CFG,DEMO,
-  loadRequest(r){ STATE.req=JSON.parse(JSON.stringify(r)); STATE.fileName="(주입)"; rejudge(false); return STATE.res; }};
+  loadRequest(r){ STATE.req=JSON.parse(JSON.stringify(r)); STATE.fileName="(주입)"; rejudge(false); return STATE.res; },
+  showTab, selectRole, get ADMIN(){return ADMIN}, aFilter};
 </script>
 </body>
 </html>
