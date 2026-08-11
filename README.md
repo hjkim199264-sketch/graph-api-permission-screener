@@ -42,9 +42,11 @@ Graph API는 "Delegated면 무조건 G1", 관리자 역할은 "민감 자산 접
 |---|---|
 | `GraphAPI_등급판정시스템.html` | **판정 시스템 본체 (Tab1 + Tab2).** 단일 파일·오프라인 동작 |
 | `index.html` | 웹 배포용 진입점 (위 파일로 리다이렉트) |
+| **문서** | |
+| `docs/BRD_M365_권한관리체계.md` | 배경·문제정의·목표·범위·등급 체계 3종·성공지표·리스크·로드맵 |
+| `docs/PRD_GAPS_통합판정시스템.md` | 3탭 기능요구사항·판정 규칙·데이터 모델·화면·테스트 결과 전량 |
+| `docs/HISTORY.md` | **작업 이력** — 타임라인·설계 결정과 근거·발견한 이슈·검증 이력 |
 | **Graph API (Tab 1)** | |
-| `docs/BRD_GraphAPI_권한관리체계.md` | 배경·문제정의·비즈니스 목표·범위·성공지표·리스크 |
-| `docs/PRD_GraphAPI_등급판정시스템.md` | 기능요구사항·분류 규칙·API 사전·데이터 모델·화면정의·테스트 결과 |
 | `templates/Graph API 권한 신청서_템플릿_v1.0.pptx` | **요청자 배포용 빈 양식** (Full 1p + 약식 1p) |
 | `samples/*.pptx` | 작성 예시 6종 (테스트 케이스 겸용) |
 | `tools/build_templates.py` | 위 템플릿·샘플 PPTX 생성 스크립트 |
