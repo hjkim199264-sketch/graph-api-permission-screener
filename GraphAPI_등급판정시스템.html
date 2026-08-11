@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GAPS · Graph API 권한 등급 판정</title>
+<style>
+:root{
+  --navy:#1E2761; --ice:#CADCFC; --ink:#1a1d24; --muted:#666e7d; --line:#dfe3ec;
+  --bg:#f5f7fb; --card:#ffffff; --shadow:0 1px 3px rgba(30,39,97,.08),0 8px 24px rgba(30,39,97,.06);
+  --g1:#1B7F3B; --g1bg:#E7F5EC; --g2:#B26A00; --g2bg:#FEF3E2; --g3:#B3261E; --g3bg:#FDECEA;
+  --blocker:#212121; --blockerbg:#ECECEC; --crit:#B3261E; --high:#B26A00; --med:#3A5BA0;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,"Courier New",monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --ink:#e8eaf0; --muted:#9aa3b2; --line:#2c3242; --bg:#12151d; --card:#1a1e29;
+         --navy:#8FA6E8; --shadow:0 1px 3px rgba(0,0,0,.4);
+         --g1bg:#12301E; --g2bg:#33260D; --g3bg:#3A1512; --blockerbg:#25272c; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"맑은 고딕","Malgun Gothic",-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg); color:var(--ink); line-height:1.6; font-size:14px;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:24px 20px 80px}
+header{display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+h1{font-size:22px;margin:0;color:var(--navy);letter-spacing:-.2px}
+h1 small{display:block;font-size:12px;font-weight:400;color:var(--muted);margin-top:3px;letter-spacing:0}
+.draft{
+  font-size:11px;font-weight:700;letter-spacing:.5px;padding:4px 10px;border-radius:999px;
+  background:var(--blockerbg);color:var(--ink);border:1px solid var(--line);white-space:nowrap;margin-top:4px
+}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-top:16px;box-shadow:var(--shadow)}
+.card > h2{
+  font-size:13px;margin:0 0 14px;color:var(--navy);font-weight:700;letter-spacing:.3px;
+  display:flex;align-items:center;gap:8px
+}
+.card > h2 .n{
+  display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;
+  background:var(--navy);color:#fff;font-size:11px;flex:none
+}
+.card > h2 .sp{flex:1}
+/* dropzone */
+#drop{
+  border:2px dashed var(--line);border-radius:12px;padding:34px 20px;text-align:center;
+  transition:.15s;cursor:pointer;background:var(--card)
+}
+#drop.hot{border-color:var(--navy);background:var(--g1bg)}
+#drop .big{font-size:15px;font-weight:700;color:var(--navy)}
+#drop .sub{font-size:12px;color:var(--muted);margin-top:6px}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+button,.btn{
+  font-family:inherit;font-size:13px;padding:8px 16px;border-radius:8px;border:1px solid var(--navy);
+  background:var(--navy);color:#fff;cursor:pointer;font-weight:600;transition:.12s
+}
+button:hover,.btn:hover{filter:brightness(1.12)}
+button.ghost{background:transparent;color:var(--navy)}
+button:disabled{opacity:.45;cursor:not-allowed}
+/* fields */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.f label{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.f input,.f textarea{
+  width:100%;font-family:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--line);
+  border-radius:7px;background:var(--bg);color:var(--ink);resize:vertical
+}
+.f input:focus,.f textarea:focus{outline:2px solid var(--navy);outline-offset:-1px;background:var(--card)}
+.f.miss input,.f.miss textarea{border-color:var(--g3);background:var(--g3bg)}
+.f.miss label::after{content:" · 미기재";color:var(--g3)}
+.apibox{border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:12px;background:var(--bg)}
+.apibox h3{font-size:12px;margin:0 0 10px;color:var(--navy);font-family:var(--mono)}
+/* verdict */
+.verdict{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.gbadge{
+  min-width:104px;text-align:center;padding:14px 18px;border-radius:12px;font-weight:800;
+  font-size:30px;line-height:1;border:2px solid
+}
+.gbadge .lab{display:block;font-size:10px;font-weight:700;margin-top:6px;letter-spacing:.4px}
+.G1{color:var(--g1);background:var(--g1bg);border-color:var(--g1)}
+.G2{color:var(--g2);background:var(--g2bg);border-color:var(--g2)}
+.G3{color:var(--g3);background:var(--g3bg);border-color:var(--g3)}
+.vmeta{flex:1;min-width:240px;font-size:13px}
+.vmeta b{color:var(--navy)}
+.halt{
+  margin-top:14px;padding:12px 14px;border-radius:9px;background:var(--blockerbg);
+  border-left:4px solid var(--blocker);font-weight:700;font-size:13px
+}
+table.t{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:12px}
+table.t th,table.t td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+table.t th{background:var(--bg);font-size:11px;color:var(--muted);font-weight:700;white-space:nowrap}
+.combo{font-family:var(--mono);font-weight:700;letter-spacing:1px}
+.pill{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;border:1px solid var(--line);background:var(--bg);white-space:nowrap}
+.pill.ov{background:var(--g2bg);border-color:var(--g2);color:var(--g2)}
+.arrow{color:var(--muted);margin:0 5px}
+.ev{font-size:11.5px;color:var(--muted);margin-top:3px}
+.ev code{font-family:var(--mono);background:var(--bg);padding:1px 4px;border-radius:4px;border:1px solid var(--line)}
+/* findings */
+.fnd{border:1px solid var(--line);border-left-width:4px;border-radius:9px;padding:11px 13px;margin-top:9px;background:var(--card)}
+.fnd.Blocker{border-left-color:var(--blocker)}
+.fnd.Critical{border-left-color:var(--crit)}
+.fnd.High{border-left-color:var(--high)}
+.fnd.Medium{border-left-color:var(--med)}
+.fnd .hd{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.sev{font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;color:#fff;letter-spacing:.3px}
+.sev.Blocker{background:var(--blocker)} .sev.Critical{background:var(--crit)}
+.sev.High{background:var(--high)} .sev.Medium{background:var(--med)}
+.fnd .rid{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.fnd .ttl{font-weight:700;font-size:13px}
+.fnd .tgt{font-family:var(--mono);font-size:11px;color:var(--navy)}
+.fnd .dt{font-size:12.5px;color:var(--muted);margin-top:5px}
+.fnd ul{margin:6px 0 0;padding-left:18px;font-size:12.5px}
+.fnd ul li{margin:2px 0}
+.counts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+/* steps */
+ol.steps{margin:0;padding-left:0;list-style:none;counter-reset:s}
+ol.steps li{
+  counter-increment:s;position:relative;padding:9px 0 9px 38px;border-bottom:1px dashed var(--line);font-size:13px
+}
+ol.steps li:last-child{border-bottom:none}
+ol.steps li::before{
+  content:counter(s);position:absolute;left:0;top:9px;width:24px;height:24px;border-radius:50%;
+  background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700
+}
+ol.steps li .who{font-size:11px;color:var(--muted);display:block}
+.kv{display:flex;gap:20px;flex-wrap:wrap;font-size:13px;margin-bottom:10px}
+.kv div b{color:var(--navy)}
+pre.out{
+  background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:12px;font-family:var(--mono);
+  font-size:11.5px;white-space:pre-wrap;word-break:break-all;max-height:340px;overflow:auto;margin:0
+}
+.err{background:var(--g3bg);border:1px solid var(--g3);color:var(--g3);border-radius:9px;padding:12px 14px;font-size:13px;margin-top:12px}
+.hide{display:none!important}
+footer{margin-top:26px;font-size:11.5px;color:var(--muted);text-align:center;line-height:1.8}
+.legend{font-size:11.5px;color:var(--muted);margin-top:10px}
+
+/* ── 기준 요약 (메인 안내) ── */
+details.guide{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-top:16px;box-shadow:var(--shadow)}
+details.guide > summary{
+  list-style:none;cursor:pointer;padding:15px 20px;font-size:13px;font-weight:700;color:var(--navy);
+  display:flex;align-items:center;gap:9px;border-radius:12px
+}
+details.guide > summary::-webkit-details-marker{display:none}
+details.guide > summary::after{content:"▾";margin-left:auto;color:var(--muted);font-size:14px;transition:.15s}
+details.guide[open] > summary::after{transform:rotate(180deg)}
+details.guide > summary:hover{background:var(--bg)}
+details.guide > summary .tagline{font-weight:400;color:var(--muted);font-size:11.5px}
+.gbody{padding:0 20px 20px}
+.gsec{margin-top:20px}
+.gsec:first-child{margin-top:4px}
+.gsec > h4{
+  font-size:11px;font-weight:800;color:var(--navy);margin:0 0 9px;letter-spacing:.6px;
+  padding-bottom:6px;border-bottom:1px solid var(--line)
+}
+/* 프로세스 흐름 */
+.flow{display:flex;gap:6px;flex-wrap:wrap;align-items:stretch}
+.flow .st{
+  flex:1 1 150px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:var(--bg);position:relative
+}
+.flow .st b{display:block;font-size:12px;color:var(--navy)}
+.flow .st span{font-size:10.5px;color:var(--muted)}
+.flow .st.me{background:var(--g1bg);border-color:var(--g1)}
+.flow .st.me b{color:var(--g1)}
+/* 3기준 카드 */
+.crit3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.crit{border:1px solid var(--line);border-radius:10px;padding:12px 13px;background:var(--bg)}
+.crit h5{margin:0 0 3px;font-size:12.5px;color:var(--navy)}
+.crit .q{font-size:10.5px;color:var(--muted);margin-bottom:9px}
+.axis{display:flex;gap:8px;margin-top:7px;align-items:flex-start}
+.axis .code{
+  flex:none;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-weight:800;font-size:12px;background:var(--navy);color:#fff
+}
+.axis .code.s{background:var(--g3)} .axis .code.a{background:var(--g2)} .axis .code.x{background:var(--blocker)}
+.axis .tx{font-size:11.5px;line-height:1.5}
+.axis .tx b{color:var(--ink)}
+.axis .tx em{font-style:normal;color:var(--muted)}
+/* 8조합 매핑 */
+.map8{display:grid;grid-template-columns:1fr;gap:7px}
+.mrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:9px;padding:9px 12px;flex-wrap:wrap}
+.mrow.G1{background:var(--g1bg);border-color:var(--g1)}
+.mrow.G2{background:var(--g2bg);border-color:var(--g2)}
+.mrow.G3{background:var(--g3bg);border-color:var(--g3)}
+.mrow .cmb{display:flex;gap:5px;flex-wrap:wrap}
+.mrow .cmb span{font-family:var(--mono);font-weight:800;font-size:12px;padding:2px 7px;border-radius:5px;background:var(--card);border:1px solid var(--line)}
+.mrow .gg{font-weight:800;font-size:15px;min-width:30px}
+.mrow.G1 .gg{color:var(--g1)} .mrow.G2 .gg{color:var(--g2)} .mrow.G3 .gg{color:var(--g3)}
+.mrow .desc{font-size:11.5px;flex:1;min-width:180px}
+.mrow .desc b{display:block;font-size:12.5px}
+.mrow .desc em{font-style:normal;color:var(--muted)}
+/* 강조 룰 박스 */
+.rulebox{border:2px solid var(--navy);border-radius:11px;padding:14px 16px;background:var(--bg)}
+.rulebox .t{font-size:12.5px;font-weight:800;color:var(--navy);margin-bottom:7px}
+.rulebox p{margin:0 0 8px;font-size:12.5px}
+.rulebox .kw{font-family:var(--mono);font-size:11px;background:var(--card);border:1px solid var(--line);border-radius:5px;padding:1px 6px;display:inline-block;margin:2px 2px 0 0}
+.rulebox .warn{font-size:11.5px;color:var(--g3);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+/* 2차 지표 */
+.adj4{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:9px}
+.adjc{border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:var(--bg);font-size:11.5px}
+.adjc b{display:block;font-size:12.5px;color:var(--navy);margin-bottom:3px}
+.adjc .mv{font-family:var(--mono);font-weight:800;font-size:12px;margin-top:6px;display:inline-block}
+.adjc .mv.dn{color:var(--g1)} .adjc .mv.up{color:var(--g3)}
+@media print{
+  details.guide{display:none!important}
+}
+@media print{
+  body{background:#fff}
+  .noprint,#drop,.btnrow{display:none!important}
+  .card{break-inside:avoid;box-shadow:none;border-color:#ccc}
+  .wrap{max-width:none;padding:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div style="flex:1;min-width:260px">
+    <h1>GAPS · Graph API 권한 등급 판정
+      <small>신청 템플릿 PPTX 업로드 → 등급 산정(G1/G2/G3) · 보완 요청사항 · 향후 진행사항 | DX혁신실 M365 운영</small>
+    </h1>
+  </div>
+  <span class="draft">DRAFT · 판정 결과는 초안이며 최종 승인은 정보보호그룹·IR 결재선</span>
+</header>
+
+<!-- ⓪ 기준 요약 -->
+<details class="guide" id="guide" open>
+  <summary>Graph API 권한 등급 분류 기준 요약
+    <span class="tagline">— 3기준 × 2값 = 8조합 → G1/G2/G3 · 판정 전에 한 번 확인하세요</span></summary>
+  <div class="gbody">
+
+    <div class="gsec">
+      <h4>할당 프로세스 — 이 도구가 담당하는 구간</h4>
+      <div class="flow">
+        <div class="st"><b>1. 권한 요청 접수</b><span>요청자 / DX기획 / DX운영</span></div>
+        <div class="st"><b>2. 요건 관리</b><span>DX운영</span></div>
+        <div class="st me"><b>3. 권한 등급 분류</b><span>DX운영 · 본 도구 지원 구간</span></div>
+        <div class="st"><b>4. 보안 검토</b><span>정보보호</span></div>
+        <div class="st"><b>5. 권한 할당</b><span>요청자 / M365 운영</span></div>
+      </div>
+    </div>
+
+    <div class="gsec">
+      <h4>1차 분류 — Graph API를 3가지 기준으로 나눕니다</h4>
+      <div class="crit3">
+        <div class="crit">
+          <h5>① 정보 유형</h5><div class="q">어떤 데이터에 접근하는가?</div>
+          <div class="axis"><div class="code">G</div><div class="tx">
+            <b>일반 정보</b><br><em>조직도, 메일 주소, 부서·직급, Teams 팀 목록, 라이선스 현황</em></div></div>
+          <div class="axis"><div class="code s">S</div><div class="tx">
+            <b>민감 정보</b><br>
+            <em>High — 메일 본문, 첨부 원문, Teams 채팅, SPO 문서 원본</em><br>
+            <em>Low — 메일 제목, 첨부파일명, 채팅 목록, 접속 기록, 상세 일정</em></div></div>
+        </div>
+        <div class="crit">
+          <h5>② 접근 범위</h5><div class="q">누구의 데이터에 접근하는가?</div>
+          <div class="axis"><div class="code">D</div><div class="tx">
+            <b>개인/특정 계정 — Delegated</b><br>
+            <em>로그인한 사용자가 원래 접근 가능한 범위 내에서만 동작</em></div></div>
+          <div class="axis"><div class="code a">A</div><div class="tx">
+            <b>전사 계정 — Application</b><br>
+            <em>사용자 없이 앱 단독 실행. 별도 제한이 없으면 <b>테넌트 전체</b>에 적용</em></div></div>
+        </div>
+        <div class="crit">
+          <h5>③ 작업 유형</h5><div class="q">어떤 작업을 하는가?</div>
+          <div class="axis"><div class="code">R</div><div class="tx">
+            <b>Read</b> — <em>데이터 표시·적재 (일방향)</em></div></div>
+          <div class="axis"><div class="code a">W</div><div class="tx">
+            <b>Create/Update</b> — <em>변경·업로드·발신 (양방향)</em></div></div>
+          <div class="axis"><div class="code x">X</div><div class="tx">
+            <b>Delete</b> — <em>운영 관리 전용. 현업 부여 제외, 등급과 별개로 <b>별도 협의</b></em></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="gsec">
+      <h4>8조합 → 3등급 매핑</h4>
+      <div class="map8">
+        <div class="mrow G1">
+          <div class="cmb"><span>GDR</span><span>GDW</span><span>SDR</span><span>SDW</span></div>
+          <div class="gg">G1</div>
+          <div class="desc"><b>개인 권한 정보 활용</b>
+            <em>기존 개인 계정 권한으로 다룰 수 있는 정보 · 운영그룹 주관, 필요시 보호그룹 공유</em></div>
+        </div>
+        <div class="mrow G2">
+          <div class="cmb"><span>GAR</span><span>GAW</span></div>
+          <div class="gg">G2</div>
+          <div class="desc"><b>전사 일반 정보 활용</b>
+            <em>전사로 확대될 수 있는 일반 정보 · 운영그룹 주관 및 보호그룹 공유</em></div>
+        </div>
+        <div class="mrow G3">
+          <div class="cmb"><span>SAR</span><span>SAW</span></div>
+          <div class="gg">G3</div>
+          <div class="desc"><b>전사 민감 정보 활용</b>
+            <em>전사로 확대될 수 있는 민감 정보 · 보안 요건 충족 후 운영성 검토</em></div>
+        </div>
+      </div>
+      <div class="legend">핵심 — 접근 범위가 <b>Delegated면 정보 민감도와 무관하게 G1</b>입니다.
+        앱이 사용자 본인의 권한 범위를 넘지 못하기 때문입니다.
+        <b>Application일 때만</b> 정보 유형이 G2와 G3를 가릅니다.</div>
+    </div>
+
+    <div class="gsec">
+      <h4>★ 접근범위 재판정 룰 (RULE-SCOPE-D)</h4>
+      <div class="rulebox">
+        <div class="t">Application으로 신청했더라도, 대상이 한정되어 있으면 Delegated로 재판정합니다</div>
+        <p>아래와 같은 <b>대상 한정 표현</b>이 활용목적·활용데이터·활용계정에 있으면 접근범위를 D로 낮춰 판정합니다.</p>
+        <div>
+          <span class="kw">특정 사서함</span><span class="kw">공유 사서함</span><span class="kw">특정 팀</span>
+          <span class="kw">특정 채널</span><span class="kw">특정 사이트</span><span class="kw">특정 사용자</span>
+          <span class="kw">로그인한 사용자</span><span class="kw">본인 계정</span><span class="kw">담당자 1인</span>
+          <span class="kw">Sites.Selected</span>
+        </div>
+        <p style="margin-top:9px">단, <span class="kw">전사</span><span class="kw">전체 사용자</span><span class="kw">전 임직원</span><span class="kw">모든 팀</span>
+          같은 전사 표현이 함께 있으면 재판정하지 않고 <b>범위 상충</b>으로 표시합니다.</p>
+        <div class="warn">⚠ Application 권한은 별도 제한이 없으면 실제로는 테넌트 전체에 적용됩니다.
+          "특정 사서함만 쓰겠다"는 선언은 코드 레벨의 약속일 뿐 부여된 권한 자체를 좁히지 않습니다.
+          따라서 재판정으로 낮아진 등급은 <b>아래 기술적 범위 제한 조치의 이행을 전제 조건</b>으로 하며,
+          미이행 시 원 등급으로 환원합니다.<br>
+          · Exchange Online — RBAC for Applications(권장) 또는 <code>New-ApplicationAccessPolicy</code><br>
+          · SharePoint/OneDrive — <code>Sites.Selected</code> + 대상 사이트에만 권한 부여<br>
+          · Teams — RSC(Resource-Specific Consent) 또는 <code>*.Group</code> 계열 권한<br>
+          · 공통 — 사용자 로그인 컨텍스트가 있으면 Delegated 권한으로 전환 (최우선 대안)
+        </div>
+      </div>
+    </div>
+
+    <div class="gsec">
+      <h4>2차 분류 — 활용 방식에 따라 등급을 조정합니다</h4>
+      <div class="adj4">
+        <div class="adjc"><b>데이터 최소화</b>非필수 컬럼 제외·마스킹 로직 구현
+          <span class="mv dn">G3 → G2</span></div>
+        <div class="adjc"><b>정보주체 인지/동의</b>대상 데이터 주체 전원이 저장·2차 활용을 인지·동의
+          <span class="mv dn">G2 → G1</span></div>
+        <div class="adjc"><b>저장·2차 가공</b>저장 없이 통계·집계값만 활용
+          <span class="mv dn">G3 → G2</span></div>
+        <div class="adjc"><b>영향 범위/활용 규모</b>임원·직책자 대상이거나 전사 × 고빈도(Daily·실시간)
+          <span class="mv up">G2 → G3</span></div>
+      </div>
+      <div class="legend">하향은 <b>최대 1등급</b>까지만 적용합니다. 상향·하향 요인이 동시에 발동하면 상쇄되고 담당자 확인 대상이 됩니다.
+        미기재 항목은 유리한 방향으로 해석하지 않고 보완 요청으로 넘깁니다.</div>
+    </div>
+
+    <div class="gsec">
+      <h4>신청서 작성 시 꼭 지켜주세요</h4>
+      <div class="crit3">
+        <div class="crit"><h5>공식 권한명으로 기재</h5>
+          <div class="q"><code>Mail.Read : 특정 공유사서함 알람 수신 처리</code> 형식으로,
+            Microsoft Graph 공식 권한명 + 활용목적을 함께 적어 주세요.</div></div>
+        <div class="crit"><h5>대상 범위를 구체적으로</h5>
+          <div class="q">어떤 사서함·팀·사이트를 쓰는지 명시해야 등급 하향과 범위 제한 조치의 근거가 됩니다.</div></div>
+        <div class="crit"><h5>권한 만료일은 필수</h5>
+          <div class="q">미기재 시 접수 보류됩니다. 최대 1년 이내를 권장하며, 만료 시점에 재심사합니다.</div></div>
+      </div>
+    </div>
+
+  </div>
+</details>
+
+<!-- ① 업로드 -->
+<section class="card noprint">
+  <h2><span class="n">1</span> Graph API 신청서 업로드</h2>
+  <div id="drop" tabindex="0" role="button" aria-label="Graph API 신청서 PPTX 파일 업로드">
+    <div class="big">Graph API 신청서(PPTX)를 여기에 끌어다 놓으세요</div>
+    <div class="sub">파일은 이 브라우저 안에서만 처리되며 외부로 전송되지 않습니다 · .pptx 전용</div>
+    <div class="btnrow">
+      <button id="pick" type="button">파일 선택</button>
+      <button id="demo" type="button" class="ghost">샘플로 체험하기</button>
+    </div>
+  </div>
+  <input id="file" type="file" accept=".pptx" class="hide">
+  <div id="err" class="err hide"></div>
+</section>
+
+<!-- ② 추출 필드 -->
+<section id="secFields" class="card hide">
+  <h2><span class="n">2</span> 추출된 신청 정보 <span class="sp"></span>
+    <span style="font-size:11px;font-weight:400;color:var(--muted)" class="noprint">값을 수정하면 즉시 재판정됩니다</span>
+  </h2>
+  <div id="fields"></div>
+</section>
+
+<!-- ③ 판정 -->
+<section id="secVerdict" class="card hide">
+  <h2><span class="n">3</span> 등급 판정 결과</h2>
+  <div id="verdict"></div>
+</section>
+
+<!-- ④ 보완 -->
+<section id="secFind" class="card hide">
+  <h2><span class="n">4</span> 보완 요청사항</h2>
+  <div id="findings"></div>
+</section>
+
+<!-- ⑤ 진행 -->
+<section id="secNext" class="card hide">
+  <h2><span class="n">5</span> 향후 진행사항</h2>
+  <div id="nextsteps"></div>
+</section>
+
+<!-- ⑥ 출력 -->
+<section id="secOut" class="card hide noprint">
+  <h2><span class="n">6</span> 내보내기</h2>
+  <div class="btnrow" style="justify-content:flex-start">
+    <button id="btnIR" type="button">IR 회신문 복사</button>
+    <button id="btnJSON" type="button" class="ghost">JSON 내보내기</button>
+    <button id="btnPrint" type="button" class="ghost">인쇄 / PDF</button>
+    <button id="btnReset" type="button" class="ghost">초기화</button>
+  </div>
+  <pre id="irout" class="out hide" style="margin-top:12px"></pre>
+</section>
+
+<footer>
+  GAPS v1.0 · 판정 규칙 근거: 「Graph API 할당 프로세스 및 기준_260806」 슬라이드 3·4·5·7·11<br>
+  1차 분류 = 정보유형(G/S) × 접근범위(D/A) × 작업유형(R/W/X) 8조합 → G1/G2/G3 · 2차 분류 = 4개 판단 지표<br>
+  <a href="https://learn.microsoft.com/en-us/graph/overview" target="_blank" rel="noopener">Microsoft Graph overview</a> ·
+  <a href="https://learn.microsoft.com/en-us/graph/permissions-reference" target="_blank" rel="noopener">Permissions reference</a>
+</footer>
+
+</div>
+
+<script>
+"use strict";
+/* ═══════════════════════════════════════════════════════════════════════════
+   설정 블록 — 기준 변경 시 이 영역만 수정하면 됩니다.
+   ═══════════════════════════════════════════════════════════════════════════ */
+const CFG = {
+
+  /* ── API 사전 ────────────────────────────────────────────────────────────
+     info : 'G'=일반정보 / 'S'=민감정보 / 'GS'=활용 데이터에 따라 결정(보수적으로 S 가정)
+     src  : 'PPT p7' = 원본 슬라이드 7 「주요 Graph API 등급 분류 초안」 정본
+     ─────────────────────────────────────────────────────────────────────── */
+  DICT: [
+    // ── 슬라이드 7 정본 23건 ──
+    ["Mail.ReadWrite","S","메일","사서함 메일 조회·발송·이동·삭제","PPT p7 (G3)"],
+    ["Mail.Read","S","메일","메일 본문·헤더 읽기","PPT p7 (G3)"],
+    ["User.ReadWrite.All","GS","사용자","계정 속성 수정, 부서·직책 갱신","PPT p7 (G2/G3)"],
+    ["User.Read.All","G","사용자","계정 조회, 부서별 목록, 상태 확인","PPT p7 (G1/G2)"],
+    ["Directory.ReadWrite.All","GS","디렉터리","삭제 계정 복원, 디렉터리 개체 관리","PPT p7 (G2/G3)"],
+    ["Directory.Read.All","GS","디렉터리","디렉터리 전반 조회","PPT p7 (G2/G3)"],
+    ["Group.ReadWrite.All","G","그룹","그룹 멤버 추가·제거, 속성 수정","PPT p7 (G2)"],
+    ["Group.Read.All","G","그룹","그룹 목록·멤버 조회","PPT p7 (G1/G2)"],
+    ["AuditLog.Read.All","G","보안","로그인 기록, 감사 로그 분석","PPT p7 (G2)"],
+    ["ThreatSubmission.Read.All","G","보안","피싱 신고 목록 조회","PPT p7 (G2)"],
+    ["RoleManagement.Read.All","GS","보안","관리자 역할 할당 감사","PPT p7 (G2/G3)"],
+    ["Team.ReadBasic.All","G","Teams","Teams 팀 목록 조회","PPT p7 (G1/G2)"],
+    ["Channel.ReadBasic.All","G","Teams","채널 목록·이름 조회","PPT p7 (G1/G2)"],
+    ["ChannelMember.Read.All","G","Teams","채널 구성원 조회","PPT p7 (G1/G2)"],
+    ["Chat.ReadBasic.All","S","Teams","채팅 스레드 메타 조회","PPT p7 (G3)"],
+    ["Sites.ReadWrite.All","G","SharePoint","SharePoint 파일 목록·업로드·수정","PPT p7 (G2)"],
+    ["DeviceManagementConfiguration.ReadWrite.All","S","Intune","Intune 디바이스·컴플라이언스 관리","PPT p7 (G3)"],
+    ["RoleManagement.Read.Directory","S","보안","디렉터리 역할 데이터 조회","PPT p7 (G3)"],
+    ["DeviceManagementManagedDevices.Read.All","GS","Intune","디바이스 목록·상태 읽기","PPT p7 (G2/G3)"],
+    ["DeviceManagementApps.Read.All","GS","Intune","Intune 앱 정책 읽기","PPT p7 (G2/G3)"],
+    ["DeviceManagementServiceConfig.Read.All","GS","Intune","Intune 서비스 구성 읽기","PPT p7 (G2/G3)"],
+    ["DeviceManagementRBAC.Read.All","GS","Intune","Intune 역할 기반 접근 설정 읽기","PPT p7 (G2/G3)"],
+    ["DeviceManagementConfiguration.Read.All","GS","Intune","디바이스 구성 프로필 읽기","PPT p7 (G2/G3)"],
+
+    // ── 운영 확장 (슬라이드 3 정보유형 정의 준거) ──
+    ["Mail.Send","S","메일","메일 발송 (사칭 발신 가능)","확장"],
+    ["Mail.ReadBasic","S","메일","메일 메타데이터 읽기(본문 제외)","확장"],
+    ["Mail.Read.Shared","S","메일","공유/대리 사서함 읽기","확장"],
+    ["Mail.ReadWrite.Shared","S","메일","공유/대리 사서함 읽기·쓰기","확장"],
+    ["Mail.Send.Shared","S","메일","공유/대리 사서함 발송","확장"],
+    ["MailboxSettings.Read","S","메일","사서함 설정 읽기","확장"],
+    ["MailboxSettings.ReadWrite","S","메일","사서함 설정 변경(자동전달 등)","확장"],
+    ["Calendars.Read","S","일정","상세 일정 읽기 (민감정보 Low)","확장"],
+    ["Calendars.ReadWrite","S","일정","일정 생성·변경","확장"],
+    ["Contacts.Read","S","연락처","연락처 읽기","확장"],
+    ["Contacts.ReadWrite","S","연락처","연락처 변경","확장"],
+    ["Files.Read.All","S","파일","전 사용자 OneDrive·SPO 파일 읽기","확장"],
+    ["Files.ReadWrite.All","S","파일","전 사용자 파일 읽기·쓰기","확장"],
+    ["Files.Read","S","파일","로그인 사용자 파일 읽기","확장"],
+    ["Files.ReadWrite","S","파일","로그인 사용자 파일 읽기·쓰기","확장"],
+    ["Sites.Read.All","G","SharePoint","전 사이트 항목 읽기","확장"],
+    ["Sites.Selected","G","SharePoint","지정 사이트만 접근 (최소권한 권장)","확장"],
+    ["Sites.FullControl.All","G","SharePoint","전 사이트 완전 제어 (고위험)","확장"],
+    ["Chat.Read.All","S","Teams","전 채팅 내용 읽기","확장"],
+    ["Chat.ReadWrite.All","S","Teams","전 채팅 읽기·쓰기 (사칭 가능)","확장"],
+    ["ChatMessage.Read.All","S","Teams","채팅 메시지 읽기","확장"],
+    ["ChannelMessage.Read.All","S","Teams","채널 메시지 읽기","확장"],
+    ["ChannelMessage.Send","S","Teams","채널 메시지 게시","확장"],
+    ["Team.Create","G","Teams","팀 생성","확장"],
+    ["TeamMember.ReadWrite.All","G","Teams","팀 멤버 추가·제거","확장"],
+    ["GroupMember.Read.All","G","그룹","그룹 멤버 조회","확장"],
+    ["GroupMember.ReadWrite.All","G","그룹","그룹 멤버 추가·제거 (권한 확대 경로)","확장"],
+    ["User.Read","G","사용자","로그인 사용자 프로필","확장"],
+    ["User.ReadBasic.All","G","사용자","기본 프로필 조회","확장"],
+    ["People.Read.All","G","사용자","관련 인물 조회","확장"],
+    ["Presence.Read.All","G","사용자","재실 상태 조회","확장"],
+    ["Organization.Read.All","G","조직","조직·라이선스 현황","확장"],
+    ["LicenseAssignment.ReadWrite.All","G","라이선스","라이선스 할당·회수","확장"],
+    ["ProfilePhoto.ReadWrite.All","G","사용자","프로필 사진 변경","확장"],
+    ["Reports.Read.All","S","보고서","사용자별 사용량·접속 기록 (민감정보 Low)","확장"],
+    ["Report.Read.All","S","Power BI","Power BI 보고서 조회","확장"],
+    ["Dataset.Read.All","S","Power BI","Power BI 데이터셋 조회","확장"],
+    ["Notes.Read.All","S","OneNote","OneNote 원문 읽기","확장"],
+    ["SearchConfiguration.Read.All","G","검색","검색 구성 읽기","확장"],
+    ["SearchConfiguration.ReadWrite.All","G","검색","검색 구성 변경","확장"],
+    ["Device.Read.All","G","디바이스","디바이스 목록 조회","확장"],
+    ["Application.Read.All","G","앱","앱 등록 조회","확장"],
+    ["Application.ReadWrite.All","S","앱","앱 등록·권한 변경 (권한 상승)","확장"],
+    ["AppRoleAssignment.ReadWrite.All","S","앱","앱 역할 할당 (권한 상승)","확장"],
+    ["RoleManagement.ReadWrite.Directory","S","보안","관리자 역할 부여 (권한 상승)","확장"],
+    ["Directory.AccessAsUser.All","S","디렉터리","사용자 자격으로 디렉터리 전권 (최고위험)","확장"],
+    ["Policy.Read.All","G","정책","정책 조회","확장"],
+    ["Policy.ReadWrite.ConditionalAccess","S","정책","조건부 액세스 정책 변경 (권한 상승)","확장"],
+    ["Policy.ReadWrite.AuthenticationMethod","S","정책","인증 방법 정책 변경 (권한 상승)","확장"],
+    ["SecurityEvents.Read.All","S","보안","보안 이벤트 조회","확장"],
+    ["SecurityIncident.Read.All","S","보안","보안 인시던트 조회","확장"],
+    ["IdentityRiskEvent.Read.All","S","보안","ID 위험 이벤트 조회","확장"],
+    ["User.EnableDisableAccount.All","S","사용자","계정 활성/비활성 (권한 상승)","확장"],
+    ["User.ManageIdentities.All","S","사용자","계정 ID 관리 (권한 상승)","확장"]
+  ],
+
+  /* 사전 미등재 시 리소스 패밀리로 추정 (위에서부터 먼저 일치하는 규칙 적용) */
+  FAMILY: [
+    [/^Mailbox/i,                                                   "S","메일"],
+    [/^Mail\./i,                                                    "S","메일"],
+    [/^Calendars?\./i,                                              "S","일정"],
+    [/^Contacts\./i,                                                "S","연락처"],
+    [/^(Chat|ChatMessage|ChannelMessage|TeamsActivity|TeamsTab)\./i, "S","Teams"],
+    [/^Files\./i,                                                   "S","파일"],
+    [/^Notes\./i,                                                   "S","OneNote"],
+    [/^(Reports?|Dataset)\./i,                                      "S","보고서"],
+    [/^(SecurityEvents|SecurityIncident|SecurityAlert|IdentityRisk|ThreatIndicators)/i,"S","보안"],
+    [/^(Application|AppRoleAssignment|Policy|PrivilegedAccess|RoleEligibility|RoleAssignmentSchedule)\./i,"S","권한·정책"],
+    [/^(DeviceManagement|RoleManagement|Directory)/i,               "GS","관리"],
+    [/^(Sites|Group|GroupMember|Team|TeamMember|Channel|ChannelMember|People|Presence|Organization|LicenseAssignment|ProfilePhoto|SearchConfiguration|Device|User)\./i,"G","조직·협업"]
+  ],
+
+  /* ── RULE-SCOPE-D : Application → Delegated 재판정 키워드 ── */
+  KW_LIMIT: ["특정 사서함","특정사서함","특정 메일함","특정 팀","특정팀","특정 채널","특정 사이트",
+    "특정 사용자","특정 계정","특정 부서","특정 그룹","특정 공유사서함","공유 사서함","공유사서함",
+    "단일 사서함","지정된 사서함","지정 사서함","지정 사이트","개인 사서함","본인 사서함","본인 계정",
+    "개인 계정","로그인한 사용자","로그인된 사용자","로그인 된 사용자","로그인 사용자","해당 사용자",
+    "사용자 본인","담당자 1인","1인의","일부 사이트","일부 사용자","해당 팀","해당 채널","해당 사서함",
+    "제한된 사서함","Sites.Selected"],
+  KW_TENANT: ["전사","전체 사용자","모든 사용자","전 사서함","전체 사서함","모든 사서함","전 임직원",
+    "임직원 전체","전체 임직원","테넌트 전체","조직 전체","all users","all mailboxes","전체 사이트",
+    "모든 사이트","모든 팀","전체 팀","전 직원","전체 직원"],
+
+  /* ── 2차 분류 판단 지표 ── */
+  RE_MIN:     /필터링|마스킹|제외\s*로직|필드\s*제외|본문\s*제외|최소화|필수\s*필드만|일부\s*필드|메타\s*데이터만|메타데이터만|헤더만|제목만|비식별|익명화|가명\s*처리|컬럼\s*제외|항목\s*제외|ID만/i,
+  RE_NOSTORE: /저장\s*(없|안\s*함|하지\s*않|X)|미저장|미보관|보관\s*(안|하지\s*않)|통계\s*값?만|집계\s*값?만|원문\s*미보관|n\s*\/\s*a|^\s*(없음|해당\s*없음|미해당)\s*$/i,
+  RE_STORE:   /적재|저장(?!\s*(없|안|하지))|인덱스|임베딩|학습|\bDB\b|데이터\s*베이스|보관(?!\s*(안|하지))|축적|누적|2\s*차\s*가공|벡터/i,
+  RE_YES:     /전원\s*동의|동의|인지|공지\s*완료|안내\s*완료|확보|취득|완료|^\s*(Y|O|예|있음)\s*$/i,
+  RE_NO:      /^\s*(N\s*\/\s*A|NA|미정|없음|미확보|불필요|TBD|T\.?B\.?D|X|아니오|예정|미실시|추후|-)\s*$/i,
+  RE_VIP:     /임원|경영진|직책자|대표이사|사장|부사장|본부장|실장|경영층|C-?level|CEO|CFO|CTO|CIO/i,
+  RE_ENT:     /전사|전체\s*사용자|전\s*임직원|임직원\s*전체|모든\s*사용자|전\s*직원|전체\s*직원/i,
+  RE_FREQ:    /daily|매일|일별|일\s*단위|실시간|시간\s*단위|배치|주기적|상시|수시|분\s*단위|시간당/i,
+  RE_DELETE:  /삭제|제거|회수|파기|폐기|퇴직|delete|purge|remove/i,
+  RE_RO_PURPOSE: /조회|읽기|수집|대시보드|분석|표시|현황|목록|확인|모니터링|리포트|통계|집계|검색|추출|적재/i,
+  RE_W_PURPOSE:  /발송|발신|전송|생성|수정|업로드|할당|초대|변경|등록|게시|작성|추가|삭제|제거|회수|승인|설정|비활성화/i,
+  RE_BLANK:   /^\s*(|-|—|n\s*\/\s*a|na|t\.?b\.?d|tbd|미정|미기재|해당\s*없음|없음|\?+|\.+)\s*$/i,
+  /* consent·storage 전용 : 'N/A'·'없음'은 의미 있는 값(미저장/동의없음)이므로 공백 처리하지 않음 */
+  RE_BLANK_STRICT: /^\s*(|-|—|미기재|\?+|\.+)\s*$/,
+
+  /* ── 고위험 권한 ── */
+  PRIVESC: ["Directory.ReadWrite.All","Directory.AccessAsUser.All","RoleManagement.ReadWrite.Directory",
+    "RoleManagement.ReadWrite.All","Application.ReadWrite.All","Application.ReadWrite.OwnedBy",
+    "AppRoleAssignment.ReadWrite.All","Policy.ReadWrite.ConditionalAccess",
+    "Policy.ReadWrite.AuthenticationMethod","User.ReadWrite.All","Sites.FullControl.All",
+    "User.EnableDisableAccount.All","User.ManageIdentities.All","PrivilegedAccess.ReadWrite.AzureAD"],
+  PRIVESC_MED: ["Group.ReadWrite.All","GroupMember.ReadWrite.All","TeamMember.ReadWrite.All",
+    "LicenseAssignment.ReadWrite.All"],
+  IMPERSONATE: ["Mail.Send","Mail.ReadWrite","Mail.Send.Shared","Mail.ReadWrite.Shared",
+    "Chat.ReadWrite.All","ChannelMessage.Send","Calendars.ReadWrite"],
+  MASSREAD: ["Mail.Read","Mail.ReadBasic","Mail.Read.Shared","Chat.Read.All","ChatMessage.Read.All",
+    "ChannelMessage.Read.All","Files.Read.All","Files.ReadWrite.All","Notes.Read.All"],
+
+  GRADE_INFO: {
+    1:{code:"G1",name:"개인 권한 정보 활용",owner:"DX운영그룹",eta:"1~3영업일",
+       proc:"운영그룹 주관 수행, 필요시 보호그룹에 공유"},
+    2:{code:"G2",name:"전사 일반 정보 활용",owner:"DX운영그룹 + 정보보호그룹",eta:"3~5영업일",
+       proc:"운영그룹 주관 및 보호그룹 공유"},
+    3:{code:"G3",name:"전사 민감 정보 활용",owner:"정보보호그룹 + DX운영그룹 (필요시 Committee)",eta:"2주 이상",
+       proc:"보안 요건 충족 후 운영성 검토 진행"}
+  },
+  STEPS: {
+    1:[["보완사항 회신 및 요건 확정","요청자 / DX운영그룹"],
+       ["권한 등급 확정 (G1)","DX운영그룹"],
+       ["필요시 정보보호그룹 공유 (IR 열람)","DX운영그룹"],
+       ["IR 결재 상신 및 승인","요청자"],
+       ["Entra App에 Graph API 권한 할당 · 관리자 동의","M365 운영"],
+       ["권한 활용 개시 · 명세/이력 등록","요청자 / DX운영그룹"],
+       ["분기별 사용량 모니터링, 만료일 도래 시 재심사","DX운영그룹"]],
+    2:[["보완사항 회신 및 요건 확정","요청자 / DX운영그룹"],
+       ["권한 등급 확정 (G2)","DX운영그룹"],
+       ["정보보호그룹 공유 및 보안의견 수렴","정보보호그룹"],
+       ["운영의견 종합 · 조건부 승인사항 확정","DX운영그룹"],
+       ["IR 결재 상신 및 승인","요청자"],
+       ["Entra App에 Graph API 권한 할당 · 관리자 동의","M365 운영"],
+       ["권한 활용 개시 · 명세/이력 등록","요청자 / DX운영그룹"],
+       ["분기별 사용량 모니터링, 만료일 도래 시 재심사","DX운영그룹"]],
+    3:[["보완사항 전건 이행 (보안 요건 충족)","요청자"],
+       ["범위 제한 조치 구현 및 증빙 제출","요청자 / 개발사"],
+       ["정보보호그룹 보안 검토","정보보호그룹"],
+       ["운영의견 종합 후 필요시 Committee 상정·의사결정","DX운영그룹 / Committee"],
+       ["운영성 검토 (성능·비용·회수 조건)","DX운영그룹"],
+       ["IR 결재 상신 및 승인","요청자"],
+       ["Entra App에 Graph API 권한 할당 · 관리자 동의","M365 운영"],
+       ["권한 활용 개시 · 명세/이력 등록","요청자 / DX운영그룹"],
+       ["집중 모니터링 (이상 호출 탐지 대상 등록) · 분기 전수조사","DX운영그룹 / 정보보호그룹"]]
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   1. raw DEFLATE 압축 해제 — DecompressionStream 미지원 브라우저 폴백
+   ═══════════════════════════════════════════════════════════════════════════ */
+const LBASE=[3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258];
+const LEXT =[0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0];
+const DBASE=[1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577];
+const DEXT =[0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13];
+const CLORDER=[16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];
+
+function makeTree(lengths){
+  const counts=new Int32Array(16);
+  for(let i=0;i<lengths.length;i++) counts[lengths[i]]++;
+  counts[0]=0;
+  const offs=new Int32Array(16);
+  for(let i=1;i<16;i++) offs[i]=offs[i-1]+counts[i-1];
+  const symbols=new Int32Array(lengths.length);
+  for(let s=0;s<lengths.length;s++) if(lengths[s]) symbols[offs[lengths[s]]++]=s;
+  return {counts,symbols};
+}
+const FIXED_LIT=(()=>{const a=new Uint8Array(288);
+  for(let i=0;i<144;i++)a[i]=8; for(let i=144;i<256;i++)a[i]=9;
+  for(let i=256;i<280;i++)a[i]=7; for(let i=280;i<288;i++)a[i]=8; return makeTree(a);})();
+const FIXED_DIST=makeTree(new Uint8Array(30).fill(5));
+
+function inflateRaw(src){
+  let bitPos=0, outLen=0;
+  let out=new Uint8Array(Math.max(4096, src.length*5));
+  const ensure=n=>{ if(outLen+n<=out.length)return;
+    let cap=out.length; while(cap<outLen+n) cap*=2;
+    const nb=new Uint8Array(cap); nb.set(out.subarray(0,outLen)); out=nb; };
+  const bit=()=>{ const by=src[bitPos>>>3];
+    if(by===undefined) throw new Error("압축 해제 실패: 입력이 조기 종료되었습니다.");
+    const b=(by>>>(bitPos&7))&1; bitPos++; return b; };
+  const bits=n=>{ let v=0; for(let i=0;i<n;i++) v|=bit()<<i; return v>>>0; };
+  const decode=t=>{ let code=0,first=0,index=0;
+    for(let len=1;len<16;len++){
+      code|=bit(); const cnt=t.counts[len];
+      if(code-first<cnt) return t.symbols[index+(code-first)];
+      index+=cnt; first=(first+cnt)<<1; code<<=1;
+    }
+    throw new Error("압축 해제 실패: 잘못된 허프만 코드"); };
+
+  let last=0;
+  do{
+    last=bit(); const type=bits(2);
+    if(type===0){
+      bitPos=(bitPos+7)&~7; const p=bitPos>>>3;
+      const len=src[p]|(src[p+1]<<8);
+      ensure(len); out.set(src.subarray(p+4,p+4+len),outLen);
+      outLen+=len; bitPos=(p+4+len)<<3;
+    } else if(type===1||type===2){
+      let lt,dt;
+      if(type===1){ lt=FIXED_LIT; dt=FIXED_DIST; }
+      else{
+        const hlit=bits(5)+257, hdist=bits(5)+1, hclen=bits(4)+4;
+        const cl=new Uint8Array(19);
+        for(let i=0;i<hclen;i++) cl[CLORDER[i]]=bits(3);
+        const clT=makeTree(cl);
+        const lens=new Uint8Array(hlit+hdist);
+        let i=0;
+        while(i<hlit+hdist){
+          const sym=decode(clT);
+          if(sym<16) lens[i++]=sym;
+          else if(sym===16){ const prev=lens[i-1]; let r=3+bits(2); while(r--) lens[i++]=prev; }
+          else if(sym===17){ let r=3+bits(3); while(r--) lens[i++]=0; }
+          else { let r=11+bits(7); while(r--) lens[i++]=0; }
+        }
+        lt=makeTree(lens.subarray(0,hlit)); dt=makeTree(lens.subarray(hlit));
+      }
+      for(;;){
+        const sym=decode(lt);
+        if(sym<256){ ensure(1); out[outLen++]=sym; }
+        else if(sym===256) break;
+        else{
+          const li=sym-257;
+          if(li>=LBASE.length) throw new Error("압축 해제 실패: 길이 코드 범위 초과");
+          const len=LBASE[li]+bits(LEXT[li]);
+          const ds=decode(dt);
+          const dist=DBASE[ds]+bits(DEXT[ds]);
+          ensure(len);
+          let from=outLen-dist;
+          for(let k=0;k<len;k++) out[outLen++]=out[from++];
+        }
+      }
+    } else throw new Error("압축 해제 실패: 알 수 없는 블록 타입");
+  } while(!last);
+  return out.subarray(0,outLen);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2. ZIP(=PPTX) 리더
+   ═══════════════════════════════════════════════════════════════════════════ */
+function readZip(buf){
+  const dv=new DataView(buf), u8=new Uint8Array(buf);
+  let eocd=-1;
+  const back=Math.min(buf.byteLength, 66000);
+  for(let i=buf.byteLength-22;i>=buf.byteLength-back && i>=0;i--){
+    if(dv.getUint32(i,true)===0x06054b50){ eocd=i; break; }
+  }
+  if(eocd<0) throw new Error("PPTX 구조(ZIP)를 찾을 수 없습니다. 손상된 파일일 수 있습니다.");
+  const count=dv.getUint16(eocd+10,true);
+  let off=dv.getUint32(eocd+16,true);
+  const dec=new TextDecoder("utf-8");
+  const entries=[];
+  for(let i=0;i<count;i++){
+    if(off+46>buf.byteLength || dv.getUint32(off,true)!==0x02014b50) break;
+    const method=dv.getUint16(off+10,true);
+    const csize=dv.getUint32(off+20,true);
+    const fnLen=dv.getUint16(off+28,true);
+    const exLen=dv.getUint16(off+30,true);
+    const cmLen=dv.getUint16(off+32,true);
+    const lho=dv.getUint32(off+42,true);
+    entries.push({name:dec.decode(u8.subarray(off+46,off+46+fnLen)),method,csize,lho});
+    off+=46+fnLen+exLen+cmLen;
+  }
+  return {entries,dv,u8};
+}
+async function readEntry(zip,e){
+  const {dv,u8}=zip;
+  if(dv.getUint32(e.lho,true)!==0x04034b50) throw new Error("ZIP 로컬 헤더 오류: "+e.name);
+  const fnLen=dv.getUint16(e.lho+26,true), exLen=dv.getUint16(e.lho+28,true);
+  const start=e.lho+30+fnLen+exLen;
+  const raw=u8.subarray(start,start+e.csize);
+  if(e.method===0) return raw;
+  if(e.method!==8) throw new Error("지원하지 않는 압축 방식입니다 (method "+e.method+")");
+  if(typeof DecompressionStream==="function"){
+    try{
+      const s=new Blob([raw]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+      return new Uint8Array(await new Response(s).arrayBuffer());
+    }catch(_){ /* 폴백 */ }
+  }
+  return inflateRaw(raw);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3. 슬라이드 XML 파싱
+   ═══════════════════════════════════════════════════════════════════════════ */
+const NS_A="http://schemas.openxmlformats.org/drawingml/2006/main";
+const NS_P="http://schemas.openxmlformats.org/presentationml/2006/main";
+const els=(node,ns,tag)=>Array.from(node.getElementsByTagNameNS(ns,tag));
+
+function textOf(node){
+  const ps=els(node,NS_A,"p");
+  if(!ps.length) return els(node,NS_A,"t").map(t=>t.textContent).join("");
+  return ps.map(p=>els(p,NS_A,"t").map(t=>t.textContent).join("")).join("\n").trim();
+}
+function parseSlide(xml){
+  const doc=new DOMParser().parseFromString(xml,"application/xml");
+  if(doc.getElementsByTagName("parsererror").length) throw new Error("슬라이드 XML 파싱에 실패했습니다.");
+  const tables=els(doc,NS_A,"tbl").map(tbl=>
+    els(tbl,NS_A,"tr").map(tr=>els(tr,NS_A,"tc").map(tc=>textOf(tc)))
+  ).filter(rows=>rows.length);
+  const texts=els(doc,NS_P,"sp").map(sp=>textOf(sp).trim()).filter(Boolean);
+  return {tables,texts,picCount:els(doc,NS_P,"pic").length};
+}
+async function parsePptx(buf){
+  const head=new Uint8Array(buf,0,Math.min(4,buf.byteLength));
+  if(head.length>=4 && head[0]===0xD0 && head[1]===0xCF && head[2]===0x11 && head[3]===0xE0)
+    throw new Error("암호화(DRM/IRM 민감도 레이블)가 적용된 파일입니다. PowerPoint에서 열어 레이블·암호를 해제한 뒤 다시 업로드해 주세요.");
+  if(!(head[0]===0x50 && head[1]===0x4B))
+    throw new Error("PPTX 파일이 아닙니다. .pptx 형식만 지원합니다 (레거시 .ppt 미지원).");
+
+  const zip=readZip(buf);
+  const slides=zip.entries
+    .filter(e=>/^ppt\/slides\/slide\d+\.xml$/.test(e.name))
+    .sort((a,b)=>(+a.name.match(/(\d+)\.xml$/)[1])-(+b.name.match(/(\d+)\.xml$/)[1]));
+  if(!slides.length) throw new Error("슬라이드를 찾을 수 없습니다. 올바른 PPTX인지 확인해 주세요.");
+  const dec=new TextDecoder("utf-8");
+  const out=[];
+  for(const e of slides) out.push(parseSlide(dec.decode(await readEntry(zip,e))));
+  return out;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4. 필드 추출 (라벨 기반)
+   ═══════════════════════════════════════════════════════════════════════════ */
+const CIRCLED="①②③④⑤⑥⑦⑧⑨⑩";
+const RE_CIRCLED=new RegExp("["+CIRCLED+"]","g");
+function normLabel(s){
+  return String(s||"")
+    .replace(/[\s ]+/g,"")
+    .replace(/[*※·・･]/g,"")
+    .replace(/[()（）\[\]【】<>《》]/g,"")
+    .replace(RE_CIRCLED,"")
+    .replace(/^[0-9]+[).．.\-]/,"")
+    .toLowerCase();
+}
+function idxOf(raw){
+  const s=String(raw||"");
+  for(let i=0;i<CIRCLED.length;i++) if(s.includes(CIRCLED[i])) return i+1;
+  const m=s.replace(/^[\s*]+/,"").match(/^([1-9])\s*[).．.\-]/);
+  return m?+m[1]:null;
+}
+const FIELD_DEFS=[
+  {key:"expiry",       re:/^(권한만료일|만료일|사용기한|유효기간|권한유효기간|권한사용기한)$/},
+  {key:"consent",      re:/^(정보주체인지\/동의|정보주체동의|정보주체인지|인지\/동의|동의여부|동의)$/},
+  {key:"storage",      re:/^(저장\/2차가공|저장2차가공|저장및2차가공|저장여부|저장\/가공|저장·2차가공)$/},
+  {key:"scopeVolume",  re:/^(영향범위\/활용규모|영향범위|활용규모|영향범위및활용규모|scope\/volume|영향범위\/규모)$/},
+  {key:"remark",       re:/^(비고|특이사항|기타)$/},
+  {key:"taskName",     re:/^(과제명|프로젝트명|과제제목|건명|요청건명)$/},
+  {key:"taskOverview", re:/^(과제개요|개요|과제내용|과제설명|요청개요)$/},
+  {key:"requester",    re:/^(요청자\/부서|요청자|신청자|신청자\/부서|요청부서|요청자부서)$/},
+  {key:"developer",    re:/^(개발자\/소속|개발자|개발사|개발자소속|개발업체)$/},
+  {key:"nameAndPurpose",api:1,re:/^(요청api명\/활용목적|api명\/활용목적|권한명\/활용목적|api명|권한명|요청api명|api\/활용목적)$/},
+  {key:"data",         api:1,re:/^(활용데이터\/url|활용데이터|데이터\/url|활용필드|필요데이터필드|데이터필드|활용데이터url)$/},
+  {key:"appId",        api:1,re:/^(entraappid|appid|entra앱id|앱id|applicationclientid|클라이언트id|entraapplicationid)$/},
+  {key:"permType",     api:1,re:/^(delegated\/application|application\/delegated|권한유형|접근범위|권한구분|권한타입)$/},
+  {key:"account",      api:1,re:/^(활용계정\/app|활용계정|대상계정|사용계정|계정\/app|활용계정app)$/}
+];
+function matchLabel(cell){
+  const n=normLabel(cell);
+  if(!n||n.length>28) return null;
+  return FIELD_DEFS.find(d=>d.re.test(n))||null;
+}
+const isBlank=v=>CFG.RE_BLANK.test(String(v||""));
+
+function extractFields(slides){
+  const req={taskName:"",taskOverview:"",requester:"",developer:"",
+             scopeVolume:"",consent:"",storage:"",remark:"",expiry:"",apis:[]};
+  const map=new Map();
+  let picCount=0, tableCount=0;
+
+  const put=(def,labelRaw,val)=>{
+    const v=String(val||"").trim();
+    if(!v) return;
+    if(def.api){
+      const i=idxOf(labelRaw)||1;
+      if(!map.has(i)) map.set(i,{index:i,nameAndPurpose:"",data:"",appId:"",permType:"",account:""});
+      const slot=map.get(i);
+      if(!slot[def.key]) slot[def.key]=v;
+    } else if(!req[def.key]) req[def.key]=v;
+  };
+
+  for(const s of slides){
+    picCount+=s.picCount; tableCount+=s.tables.length;
+    for(const rows of s.tables){
+      for(let r=0;r<rows.length;r++){
+        const row=rows[r];
+        for(let c=0;c<row.length;c++){
+          const def=matchLabel(row[c]); if(!def) continue;
+          let val="";
+          for(let k=c+1;k<row.length;k++){
+            if(matchLabel(row[k])) break;           // 다음 라벨 도달 → 값 없음
+            if(row[k] && row[k].trim()){ val=row[k].trim(); break; }
+          }
+          if(!val && r+1<rows.length){              // 세로형 템플릿 대응
+            const below=rows[r+1][c];
+            if(below && !matchLabel(below)) val=String(below).trim();
+          }
+          put(def,row[c],val);
+        }
+      }
+    }
+    // 표 밖 텍스트에서 'label : value' 보조 추출 (안내문 '*/※' 줄은 제외)
+    for(const t of s.texts) for(const line of t.split("\n")){
+      if(/^\s*[*※]/.test(line)) continue;
+      const m=line.match(/^\s*(.{2,28}?)\s*[:：]\s*(.+)$/); if(!m) continue;
+      const def=matchLabel(m[1]); if(def) put(def,m[1],m[2]);
+    }
+  }
+
+  for(const k of ["taskName","taskOverview","requester","developer","scopeVolume","remark","expiry"])
+    if(isBlank(req[k])) req[k]="";
+  for(const k of ["consent","storage"])
+    if(CFG.RE_BLANK_STRICT.test(req[k]||"")) req[k]="";
+
+  req.apis=[...map.values()].sort((a,b)=>a.index-b.index)
+    .map(a=>{ for(const k of ["nameAndPurpose","data","appId","permType","account"]) if(isBlank(a[k])) a[k]=""; return a; })
+    .filter(a=>a.nameAndPurpose||a.data||a.appId||a.account);
+  req._picCount=picCount; req._tableCount=tableCount;
+  return req;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5. 판정 엔진
+   ═══════════════════════════════════════════════════════════════════════════ */
+const DICT=new Map(CFG.DICT.map(d=>[d[0].toLowerCase(),{name:d[0],info:d[1],family:d[2],note:d[3],src:d[4]}]));
+
+function splitApi(np){
+  const s=String(np||"").trim();
+  if(!s) return {permission:"",purpose:""};
+  const P="[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)+";
+  let m=s.match(new RegExp("^\\s*("+P+")\\s*[:：\\-–—]\\s*([\\s\\S]*)$"));
+  if(m && looksLikePermission(m[1])) return {permission:m[1],purpose:m[2].trim()};
+  m=s.match(new RegExp("("+P+")","g"));
+  if(m){ const hit=m.find(looksLikePermission);
+    if(hit) return {permission:hit,purpose:s.replace(hit,"").replace(/^[\s:：\-–—]+/,"").trim()}; }
+  return {permission:"",purpose:s};
+}
+function looksLikePermission(p){
+  if(!p||p.length<5) return false;
+  if(/^(t\.?b\.?d|n\.?\s*a|etc)$/i.test(p)) return false;
+  if(DICT.has(p.toLowerCase())) return true;
+  return /\.(Read|ReadWrite|ReadBasic|Write|Send|Create|Manage|Selected|All|Shared|Directory|Group|OwnedBy|FullControl|AccessAsUser|Invite|EnableDisableAccount|ManageIdentities)\b/i.test(p);
+}
+function lookupInfo(perm){
+  const hit=DICT.get(String(perm||"").toLowerCase());
+  if(hit) return {info:hit.info,family:hit.family,note:hit.note,src:hit.src};
+  for(const [re,info,family] of CFG.FAMILY)
+    if(re.test(perm)) return {info,family,note:"패밀리 규칙 추정",src:"FAMILY"};
+  return {info:"UNKNOWN",family:"미확인",note:"사전 미등재",src:"UNKNOWN"};
+}
+function normPermType(v){
+  const s=String(v||"").toLowerCase();
+  if(/appl?ication|앱\s*권한|app\s*only|응용\s*프로그램/.test(s)) return "Application";
+  if(/delegat|위임/.test(s)) return "Delegated";
+  return "";
+}
+function opTypeOf(perm,purpose){
+  if(/Delete|Purge/i.test(perm)) return {v:"X",why:"권한명에 Delete 포함"};
+  if(CFG.RE_DELETE.test(purpose)) return {v:"X",why:"활용목적에 삭제·제거·회수 등 서술"};
+  if(/ReadWrite|\.Write|\.Send|\.Create|\.Manage|FullControl|EnableDisableAccount|ManageIdentities|\.Invite|AccessAsUser/i.test(perm))
+    return {v:"W",why:"권한명이 쓰기 계열"};
+  return {v:"R",why:"권한명이 읽기 계열"};
+}
+function hitList(text,list){
+  const s=String(text||"").toLowerCase();
+  return list.filter(k=>s.includes(String(k).toLowerCase()));
+}
+
+function judge(req){
+  const now=new Date();
+  const F=[];                                   // findings
+  const add=(id,sev,target,title,detail,actions)=>
+    F.push({id,sev,target:target||"-",title,detail:detail||"",actions:actions||[]});
+
+  /* 공통 항목 누락 */
+  const REQF=[["taskName","과제명"],["taskOverview","과제개요"],["requester","요청자/부서"],
+              ["developer","개발자/소속"],["scopeVolume","영향 범위/활용 규모"]];
+  const missing=REQF.filter(([k])=>!req[k]).map(([,n])=>n);
+  if(missing.length)
+    add("REQ-BASIC","Blocker","-","필수 항목 미기재 — "+missing.join(", "),
+        "신청서 접수를 위해 위 항목을 모두 기재해 주십시오. 미기재 항목은 판정에 반영되지 않으며, 유리한 방향으로 해석하지 않습니다.",
+        missing.map(n=>n+" 기재"));
+  if(!req.expiry)
+    add("REQ-EXPIRY","Blocker","-","권한 만료일 미기재",
+        "권한 만료일은 필수 항목입니다. 미기재 신청은 접수 보류됩니다.",
+        ["만료일 기재 (최대 1년 이내 권장)","만료일 도래 시 재심사 절차 안내 확인"]);
+  else if(/무기한|영구|없음|상시|permanent/i.test(req.expiry))
+    add("OPS-EXPIRY-LONG","High","-","권한 만료일이 '무기한'으로 기재됨",
+        "만료 없는 권한은 회수 시점을 특정할 수 없어 미사용 권한 누적의 직접 원인이 됩니다.",
+        ["최대 1년 이내 만료일로 재설정","갱신이 필요하면 만료 시점에 재심사 신청"]);
+  if(!req.apis.length)
+    add("REQ-API","Blocker","-","요청 API가 확인되지 않음",
+        "① API명/활용목적 항목에 Microsoft Graph 공식 권한명과 활용목적을 기재해 주십시오. (예: Mail.Read : 특정 공유사서함 알람 수신 처리)",
+        ["Graph 공식 권한명으로 기재","권한별 활용목적 1문장 기재"]);
+
+  /* 2차 분류 지표 */
+  const minText=[req.remark,...req.apis.map(a=>a.data)].join(" ");
+  const dataMin = CFG.RE_MIN.test(minText);
+  const consentYes = !!req.consent && !CFG.RE_NO.test(req.consent) && CFG.RE_YES.test(req.consent);
+  const consentUnknown = !!req.consent && !CFG.RE_NO.test(req.consent) && !CFG.RE_YES.test(req.consent);
+  const stored  = !!req.storage && CFG.RE_STORE.test(req.storage);
+  const noStore = !!req.storage && !stored && CFG.RE_NOSTORE.test(req.storage);
+  const scopeUp = !!req.scopeVolume &&
+    (CFG.RE_VIP.test(req.scopeVolume) || (CFG.RE_ENT.test(req.scopeVolume) && CFG.RE_FREQ.test(req.scopeVolume)));
+
+  /* API별 판정 */
+  const results=req.apis.map(a=>{
+    const {permission,purpose}=splitApi(a.nameAndPurpose);
+    const perm=permission||"(권한명 미확인)";
+    const dict=lookupInfo(permission);
+    const infoVal = dict.info==="UNKNOWN" ? "S" : (dict.info==="GS" ? "S" : dict.info);
+    const infoNote= dict.info==="UNKNOWN" ? "사전 미등재 → 민감(S) 보수적 가정"
+                  : dict.info==="GS" ? "활용 데이터에 따라 상이(G/S) → 민감(S) 보수적 가정"
+                  : dict.note;
+
+    /* 접근 범위 */
+    const declared=normPermType(a.permType);
+    const scopeText=[a.nameAndPurpose,a.data,a.account].filter(Boolean).join(" / ");
+    const limitHits=hitList(scopeText,CFG.KW_LIMIT);
+    const tenantHits=hitList(scopeText,CFG.KW_TENANT);
+    let scope=declared==="Delegated"?"D":"A", overridden=false, conflict=false;
+    if(declared!=="Delegated"){
+      if(limitHits.length && !tenantHits.length){ scope="D"; overridden=true; }
+      else if(limitHits.length && tenantHits.length) conflict=true;
+    }
+
+    const op=opTypeOf(perm,purpose+" "+(a.data||""));
+    const combo=infoVal+scope+(op.v==="X"?"W":op.v);
+    const base = scope==="D" ? 1 : (infoVal==="G" ? 2 : 3);
+
+    /* 2차 조정 */
+    const adj=[]; let g=base;
+    if(base===3 && dataMin){ g=2; adj.push({id:"ADJ-MIN",dir:"down",text:"데이터 최소화(필터링/마스킹) 적용 서술 → G3에서 1등급 하향"}); }
+    else if(base===3 && noStore){ g=2; adj.push({id:"ADJ-STORE",dir:"down",text:"저장 없이 통계·집계만 활용 → G3에서 1등급 하향"}); }
+    else if(base===2 && consentYes){ g=1; adj.push({id:"ADJ-CONSENT",dir:"down",text:"정보주체 인지/동의 확보 → G2에서 1등급 하향"}); }
+    if(base===3 && g===2 && consentYes)
+      adj.push({id:"ADJ-CAP",dir:"info",text:"하향 요인이 2건 이상이나 정책상 최대 1등급까지만 하향합니다 (담당자 재량 판단 영역)"});
+    if(scopeUp){
+      if(g===2){ g=3; adj.push({id:"ADJ-SCOPE-UP",dir:"up",text:"영향 범위/활용 규모(중요 계정 또는 전사×고빈도) → G2에서 G3 상향"}); }
+      else if(g===1) adj.push({id:"ADJ-SCOPE-UP",dir:"info",text:"영향 범위/규모 상향 요인이 감지되었습니다. G1은 자동 상향 대상이 아니므로 담당자 확인 권고"});
+    }
+    if(adj.some(x=>x.dir==="down") && adj.some(x=>x.dir==="up"))
+      adj.push({id:"ADJ-OFFSET",dir:"info",text:"상향·하향 요인이 동시 발동하여 상쇄되었습니다. 담당자 확인 필요"});
+
+    /* ── 보완 요청사항 (API별) ── */
+    if(!permission && a.nameAndPurpose)
+      add("REQ-API","Blocker",a.nameAndPurpose.slice(0,40),"Graph 공식 권한명을 인식할 수 없음",
+          "기재값에서 Microsoft Graph 권한명을 찾지 못했습니다.",["'Mail.Read' 형식의 공식 권한명으로 기재"]);
+    if(!purpose && permission)
+      add("REQ-PURPOSE","Blocker",perm,"활용목적 미기재",
+          "권한별 활용목적이 없으면 2차 분류와 최소권한 검토가 불가합니다.",["'권한명 : 활용목적' 형식으로 기재"]);
+    if(!declared)
+      add("REQ-PERMTYPE","Blocker",perm,"Delegated/Application 미기재",
+          "권한 유형이 없어 보수적으로 Application으로 가정하여 판정했습니다.",
+          ["사용자 로그인 컨텍스트가 있으면 Delegated","사용자 없이 앱 단독 실행이면 Application"]);
+    if(!a.data)
+      add("REQ-DATA","Blocker",perm,"활용 데이터/URL 미기재",
+          "실제로 읽거나 쓰는 데이터 필드가 특정되지 않았습니다.",
+          ["사용할 데이터 필드 나열 (예: 제목·발신자·수신일시)","불필요 필드 제외 로직 적용 여부 기재"]);
+    if(!a.appId)
+      add("REQ-APPID","High",perm,"Entra App ID 미기재",
+          "권한을 부여할 대상 앱이 특정되지 않았습니다.",
+          ["Entra 앱 등록 후 Application(Client) ID 기재","미등록 시 앱 등록 요청 선행"]);
+
+    if(overridden){
+      const wl=/^Mail|^Mailbox/i.test(perm)?"exo":/^Sites|^Files/i.test(perm)?"spo":/^Chat|^Channel|^Team/i.test(perm)?"teams":"etc";
+      const acts=["사용자 로그인 컨텍스트가 있으면 Delegated 권한으로 전환 (최우선 대안)"];
+      if(wl==="exo") acts.push("Exchange Online: RBAC for Applications(권장) 또는 New-ApplicationAccessPolicy로 대상 사서함(보안그룹) 한정");
+      if(wl==="spo") acts.push("SharePoint/OneDrive: Sites.Selected 권한으로 변경 후 대상 사이트에만 권한 부여");
+      if(wl==="teams") acts.push("Teams: RSC(Resource-Specific Consent) 또는 *.Group 계열 권한으로 특정 팀에만 동의");
+      if(wl==="etc") acts.push("해당 워크로드의 범위 제한 수단(정책·조건부 접근·전용 계정) 적용 방안 협의");
+      acts.push("범위 제한 조치 구현 증빙(스크립트/설정 캡처) 제출");
+      add("SEC-SCOPE","High",perm,"Application 권한의 기술적 범위 제한 필수 (등급 하향의 전제 조건)",
+          "Application 권한으로 신청되었으나 활용 대상이 특정 범위로 한정되어 접근범위를 Delegated로 재판정했습니다("+
+          "근거: "+limitHits.map(h=>"「"+h+"」").join(", ")+"). "+
+          "다만 Application 권한은 별도 제한이 없으면 테넌트 전체에 적용되므로, 아래 조치가 이행되지 않으면 원 등급("+
+          "G"+(infoVal==="G"?2:3)+")으로 환원합니다.",acts);
+    }
+    if(conflict)
+      add("SEC-CONFLICT","High",perm,"활용 범위 서술이 상충 (특정 대상 + 전사 범위 동시 기재)",
+          "한정 표현 "+limitHits.map(h=>"「"+h+"」").join(", ")+" 과 전사 표현 "+tenantHits.map(h=>"「"+h+"」").join(", ")+
+          " 이 함께 기재되어 접근범위를 Application으로 유지했습니다.",
+          ["1차 적용 범위와 향후 확대 범위를 분리하여 기재","확대 시점에 별도 재신청이 필요함을 확인"]);
+    if(scope==="A" && /\.All\b/i.test(perm))
+      add("SEC-ALL","High",perm,"테넌트 전역 권한 (.All + Application)",
+          "이 조합은 별도 제한이 없는 한 조직 전체 데이터에 적용됩니다.",
+          ["범위 한정 권한으로 대체 가능한지 검토 (Sites.Selected, *.Group 등)","불가 시 정책 기반 접근 제한 및 호출 로그 모니터링 동의"]);
+    if(/^Sites\.(Read|ReadWrite)\.All$/i.test(perm))
+      add("SEC-SITES","High",perm,"Sites.Selected로 범위 축소 권고",
+          "Sites.Read(Write).All은 전 SharePoint 사이트에 적용됩니다.",
+          ["Sites.Selected 권한으로 변경","대상 사이트에만 read 또는 write 권한 부여"]);
+    if(/^Files\.(Read|ReadWrite)\.All$/i.test(perm))
+      add("SEC-FILES","High",perm,"전 사용자 OneDrive 포함 — 대상 한정 검토",
+          "Files.*.All은 전 임직원의 개인 OneDrive까지 포함합니다.",
+          ["SharePoint만 필요하면 Sites.Selected로 대체","OneDrive가 필요하면 대상 사용자 한정 방안 협의"]);
+    if(/^(Chat|ChatMessage|ChannelMessage)\..*\.All$/i.test(perm))
+      add("SEC-TEAMSRSC","High",perm,"Teams RSC로 특정 팀 한정 권고",
+          "전 채팅·채널 메시지 접근은 민감정보 High에 해당합니다.",
+          ["RSC(Resource-Specific Consent) 적용","*.Group 계열 권한으로 대상 팀에만 동의"]);
+    if(op.v==="W" && purpose && CFG.RE_RO_PURPOSE.test(purpose) && !CFG.RE_W_PURPOSE.test(purpose))
+      add("SEC-OVERPERM","High",perm,"활용목적 대비 과대 권한 (쓰기 권한이나 목적은 조회성)",
+          "활용목적: "+purpose,["Read 전용 권한으로 축소 (예: Mail.ReadWrite → Mail.Read)"]);
+    if(op.v==="R" && purpose && CFG.RE_W_PURPOSE.test(purpose))
+      add("SEC-UNDERPERM","Medium",perm,"활용목적과 권한 정합성 확인 필요 (읽기 권한이나 목적에 변경 작업 포함)",
+          "활용목적: "+purpose,["필요한 쓰기 권한을 별도 항목으로 신청하거나, 목적 기술을 정정"]);
+    if(/^Mail\.ReadWrite/i.test(perm) && purpose && /발송|발신|전송|메일링/.test(purpose) &&
+       !req.apis.some(x=>/Mail\.Send/i.test(x.nameAndPurpose||"")))
+      add("SEC-MAILSEND","High",perm,"발송 목적이면 Mail.Send가 적합",
+          "Mail.ReadWrite는 사서함 전체 읽기·수정·삭제를 포함하며, 실제 발송에는 Mail.Send 권한이 필요합니다.",
+          ["발송만 필요하면 Mail.Send로 대체 (읽기 권한 불필요)","수신 처리도 필요하면 Mail.Read를 별도 항목으로 분리 신청"]);
+    if(CFG.PRIVESC.some(p=>p.toLowerCase()===perm.toLowerCase()))
+      add("RISK-PRIVESC","Critical",perm,"권한 상승 경로 권한",
+          "이 권한은 앱이 스스로 권한을 확대하거나 관리자 역할을 부여할 수 있습니다. 정보보호그룹 필수 검토 대상입니다.",
+          ["더 좁은 권한으로 대체 가능한지 재검토","전용 관리 계정·PIM 적용 검토","호출 감사로그 상시 모니터링 대상 등록"]);
+    else if(CFG.PRIVESC_MED.some(p=>p.toLowerCase()===perm.toLowerCase()))
+      add("RISK-PRIVESC-MED","High",perm,"간접 권한 확대 가능 권한",
+          "그룹·팀 멤버십 또는 라이선스를 변경할 수 있어 접근 권한이 간접 확대될 수 있습니다.",
+          ["대상 그룹을 특정하고 그 외 그룹 변경을 차단하는 로직 구현","변경 이력 로깅"]);
+    if(scope==="A" && CFG.IMPERSONATE.some(p=>p.toLowerCase()===perm.toLowerCase()))
+      add("RISK-IMPERSONATE","Critical",perm,"임직원 사칭 발신 가능 (Application)",
+          "Application 권한으로 임의 사용자 명의의 메일·채팅 발송이 가능하여 피싱에 악용될 수 있습니다.",
+          ["발신 전용 계정/공유사서함으로 한정 (RBAC for Applications)","발신 도메인·수신자 화이트리스트 적용","발신 이력 로깅 및 이상 발신 탐지"]);
+    if(scope==="A" && CFG.MASSREAD.some(p=>p.toLowerCase()===perm.toLowerCase()))
+      add("RISK-MASSREAD","Critical",perm,"전사 콘텐츠 대량 열람 가능 (Application)",
+          "테넌트 전체의 메일 본문·채팅·파일 원문 열람이 가능합니다 (민감정보 High).",
+          ["대상 범위 기술적 한정 필수","열람 데이터의 저장·반출 경로 명시","호출량 임계치 기반 이상 탐지 설정"]);
+    if(op.v==="X")
+      add("RISK-DELETE","Critical",perm,"삭제 작업 포함 — 별도 협의 대상",
+          op.why+". 삭제 권한은 원칙적으로 현업 부여 대상이 아니며 운영 관리 전용입니다.",
+          ["삭제 대상·조건·복구 절차 명시","운영그룹 대행 처리 가능 여부 검토","실행 전 승인 단계 및 실행 로그 보존"]);
+    else if(/ReadWrite/i.test(perm))
+      add("NOTE-RW-DELETE","Medium",perm,"ReadWrite 권한은 삭제 기능을 내포",
+          "Graph의 ReadWrite 권한은 대부분 대상 리소스의 삭제까지 허용합니다.",
+          ["삭제 API를 호출하지 않는다는 점을 코드/설정으로 보증","가능하면 Read + 최소 쓰기 권한으로 분리"]);
+    if(dict.info==="UNKNOWN" && permission)
+      add("RISK-UNKNOWN","High",perm,"사전 미등재 권한 — 정보유형 확인 필요",
+          "내부 API 사전에 없는 권한입니다. 보수적으로 민감(S)으로 가정하여 판정했습니다.",
+          ["Microsoft Graph permissions reference에서 권한 설명 확인 후 정보유형 회신",
+           "확인 결과를 API 사전에 반영 (설정 블록 CFG.DICT)"]);
+    if(dict.info==="GS" && permission)
+      add("REQ-FIELD","Medium",perm,"활용 필드에 따라 정보유형이 달라지는 권한",
+          "원본 기준에서 G2/G3로 병기된 권한입니다. 실제 사용하는 필드에 따라 등급이 달라집니다.",
+          ["실제 조회·변경하는 속성 목록을 구체적으로 기재"]);
+    if(/^Sites\./i.test(perm) && stored)
+      add("NOTE-SPO-SENSITIVE","Medium",perm,"SPO 문서 원본 적재 시 민감 정보 상향 검토",
+          "원본 기준상 SharePoint 권한은 일반 정보(G)로 분류하나, 문서 원본을 적재·학습에 사용하는 경우 '민감정보 High — SPO문서 원본'에 해당합니다.",
+          ["적재 대상이 문서 원본인지 메타데이터인지 명시","원본 적재 시 정보보호그룹 상향 검토 요청"]);
+
+    return {index:a.index,permission:perm,purpose,declared:declared||"(미기재→Application 가정)",
+            info:{v:infoVal,raw:dict.info,note:infoNote,src:dict.src,family:dict.family},
+            scope:{v:scope,overridden,conflict,limitHits,tenantHits},
+            op,combo,base,adj,final:g};
+  });
+
+  const overall=results.length?Math.max(...results.map(r=>r.final)):null;
+
+  /* 정보주체 인지/동의 — 최종 등급에 따라 심각도 차등 */
+  if(!req.consent)
+    add("REQ-CONSENT","Blocker","-","정보주체 인지/동의 미기재",
+        "데이터 주체의 인지·동의 확보 여부는 2차 분류(등급 하향)와 보안 검토의 필수 입력입니다.",
+        ["동의/인지 확보 여부와 그 방법(사내 공지·동의서·사규 근거) 기재"]);
+  else if(CFG.RE_NO.test(req.consent))
+    add("REQ-CONSENT-NO",(overall>=2?"Blocker":"High"),"-",
+        "정보주체 인지/동의 미확보 (기재값: "+req.consent+")",
+        (overall>=2
+          ? "전사 범위(G2 이상) 데이터를 활용하면서 정보주체의 인지·동의 또는 이를 갈음하는 법적 근거가 확인되지 않았습니다. 보완 없이는 진행이 어렵습니다."
+          : "개인 권한 범위(G1) 활용이나, 동의·인지 근거를 남겨 두는 것을 권고합니다."),
+        ["동의·공지 확보 계획과 시점 제시","동의가 불필요한 경우 사규·계약·정당한 이익 등 법적 근거 명시"]);
+  else if(consentUnknown)
+    add("REQ-CONSENT","High","-","정보주체 인지/동의 여부가 불명확",
+        "기재값 「"+req.consent+"」로는 동의 확보 여부를 판정할 수 없어 2차 분류(하향)에 반영하지 않았습니다.",
+        ["동의/인지 확보 여부와 그 방법(공지·동의서·규정 근거)을 명시"]);
+
+  /* 저장/2차 가공 */
+  if(!req.storage)
+    add("REQ-STORE","Blocker","-","저장/2차 가공 미기재",
+        "저장 여부는 2차 분류(등급 하향)와 보안 검토의 필수 입력입니다.",
+        ["저장하지 않으면 'N/A' 또는 '미저장'으로 기재","저장하면 위치·보관기간·2차 활용 범위 기재"]);
+  else if(stored)
+    add("OPS-STORE-DETAIL","Medium","-","데이터 저장·2차 가공 발생",
+        "기재값: "+req.storage,
+        ["저장 위치(테넌트/리전) 명시","보관 기간 및 파기 기준 명시","저장 시 암호화 적용 여부 명시",
+         "2차 활용(통계·학습) 범위 명시"]);
+  else if(noStore)
+    add("NOTE-NOSTORE","Medium","-","비저장(통계·집계만) 전제 — 이행 확인 대상",
+        "기재값 「"+req.storage+"」를 근거로 저장 없음으로 판정했습니다. 이는 2차 분류 하향의 근거가 됩니다.",
+        ["원문을 임시 파일·로그·캐시에도 남기지 않음을 확인","실제 미저장 여부는 사후 모니터링에서 검증"]);
+
+  /* 공통 위생 */
+  add("OPS-AUTH","Medium","-","앱 인증 방식 권고",
+      "Client Secret은 유출·만료 관리 부담이 큽니다.",
+      ["Azure 리소스에서 호출 시 Managed Identity 사용","외부 호출 시 인증서 기반 자격 증명 사용",
+       "Secret 사용이 불가피하면 만료일·회전 주기 명시"]);
+  if(!req._picCount)
+    add("OPS-DIAGRAM","Medium","-","데이터 흐름도 미첨부",
+        "데이터가 M365 밖으로 나가는 경로를 확인하기 위해 흐름도가 필요합니다.",
+        ["데이터 흐름도(소스 → 처리 → 저장 → 소비) 첨부","구현 화면이 있으면 함께 첨부"]);
+  if(!/개발계|가동계|운영계|prod|dev|스테이징|테스트/i.test([req.taskOverview,req.remark].join(" ")))
+    add("OPS-ENV","Medium","-","개발계/가동계 구분 미기재",
+        "권한은 환경별로 분리 부여하는 것을 원칙으로 합니다.",
+        ["대상 환경(개발계/가동계) 명시","개발계 선 검증 후 가동계 이관 절차 확인"]);
+  add("OPS-MONITOR","Medium","-","사후 모니터링 대상 등록",
+      "부여된 권한은 분기별 전수 조사 대상입니다. 90일 이상 미호출 시 휴면으로 판단하여 회수 안내가 발송됩니다.",
+      ["요청 목적 외 호출 시 소명 요청이 발생할 수 있음을 확인","권한 만료일 도래 시 재심사 신청"]);
+
+  const SEV=["Blocker","Critical","High","Medium"];
+  F.sort((a,b)=>SEV.indexOf(a.sev)-SEV.indexOf(b.sev));
+  const counts=SEV.reduce((o,s)=>(o[s]=F.filter(f=>f.sev===s).length,o),{});
+
+  return {
+    meta:{tool:"GAPS",version:"1.0",judgedAt:now.toISOString(),draft:true},
+    request:req,
+    apis:results,
+    overall,
+    hasDelete:results.some(r=>r.op.v==="X"),
+    hasOverride:results.some(r=>r.scope.overridden),
+    findings:F, counts,
+    blocked:counts.Blocker>0,
+    signals:{dataMin,consentYes,consentUnknown,stored,noStore,scopeUp}
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   6. 화면 렌더링
+   ═══════════════════════════════════════════════════════════════════════════ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const AX={G:"일반(G)",S:"민감(S)",D:"개인/Delegated(D)",A:"전사/Application(A)",R:"Read(R)",W:"Create/Update(W)",X:"Delete(X)"};
+let STATE={req:null,res:null,fileName:""};
+
+function fieldHtml(label,key,val,multi,missing){
+  const tag=multi?`<textarea rows="2" data-k="${key}">${esc(val)}</textarea>`
+                 :`<input type="text" data-k="${key}" value="${esc(val)}">`;
+  return `<div class="f${missing?" miss":""}"><label>${esc(label)}</label>${tag}</div>`;
+}
+function renderFields(req){
+  let h=`<div class="grid">
+    ${fieldHtml("과제명","taskName",req.taskName,0,!req.taskName)}
+    ${fieldHtml("요청자/부서","requester",req.requester,0,!req.requester)}
+    ${fieldHtml("개발자/소속","developer",req.developer,0,!req.developer)}
+    ${fieldHtml("권한 만료일","expiry",req.expiry,0,!req.expiry)}
+  </div>
+  <div class="grid" style="margin-top:12px">
+    ${fieldHtml("과제개요","taskOverview",req.taskOverview,1,!req.taskOverview)}
+    ${fieldHtml("영향 범위/활용 규모","scopeVolume",req.scopeVolume,1,!req.scopeVolume)}
+  </div>
+  <div class="grid" style="margin-top:12px">
+    ${fieldHtml("정보주체 인지/동의","consent",req.consent,0,!req.consent)}
+    ${fieldHtml("저장/2차 가공","storage",req.storage,0,!req.storage)}
+    ${fieldHtml("비고","remark",req.remark,0,false)}
+  </div>`;
+  req.apis.forEach((a,i)=>{
+    h+=`<div class="apibox"><h3>API ${a.index}</h3><div class="grid">
+      ${fieldHtml("API명 / 활용목적","api."+i+".nameAndPurpose",a.nameAndPurpose,1,!a.nameAndPurpose)}
+      ${fieldHtml("활용 데이터 / URL","api."+i+".data",a.data,1,!a.data)}
+    </div><div class="grid" style="margin-top:10px">
+      ${fieldHtml("Delegated / Application","api."+i+".permType",a.permType,0,!a.permType)}
+      ${fieldHtml("Entra App ID","api."+i+".appId",a.appId,0,!a.appId)}
+      ${fieldHtml("활용계정 / App","api."+i+".account",a.account,0,false)}
+    </div></div>`;
+  });
+  if(!req.apis.length) h+=`<div class="apibox"><h3>API 미확인</h3>
+    <div class="grid">${fieldHtml("API명 / 활용목적","api.0.nameAndPurpose","",1,true)}
+    ${fieldHtml("Delegated / Application","api.0.permType","",0,true)}</div></div>`;
+  $("#fields").innerHTML=h;
+  $("#fields").querySelectorAll("input,textarea").forEach(el=>{
+    el.addEventListener("input",()=>{
+      const k=el.dataset.k;
+      if(k.startsWith("api.")){
+        const [,i,f]=k.split(".");
+        if(!STATE.req.apis[+i]) STATE.req.apis[+i]={index:+i+1,nameAndPurpose:"",data:"",appId:"",permType:"",account:""};
+        STATE.req.apis[+i][f]=el.value;
+      } else STATE.req[k]=el.value;
+      clearTimeout(el._t); el._t=setTimeout(()=>rejudge(true),320);
+    });
+  });
+}
+function renderVerdict(res){
+  const g=res.overall;
+  if(g==null){ $("#verdict").innerHTML=`<div class="halt">요청 API를 확인할 수 없어 등급을 산정하지 못했습니다. 아래 보완 요청사항을 확인해 주세요.</div>`; return; }
+  const gi=CFG.GRADE_INFO[g];
+  let h=`<div class="verdict">
+    <div class="gbadge G${g}">${gi.code}<span class="lab">${esc(gi.name)}</span></div>
+    <div class="vmeta">
+      <div>신청 API <b>${res.apis.length}건</b> · 종합 등급은 <b>API별 최고 등급</b>을 따릅니다.</div>
+      <div style="margin-top:4px">할당 프로세스 · <b>${esc(gi.proc)}</b></div>
+      <div style="margin-top:4px">주관 <b>${esc(gi.owner)}</b> · 예상 소요 <b>${esc(gi.eta)}</b></div>
+      ${res.hasOverride?`<div style="margin-top:6px" class="pill ov">접근범위 재판정 적용 — 범위 제한 조치 이행이 전제 조건</div>`:""}
+      ${res.hasDelete?`<div style="margin-top:6px" class="pill ov">삭제(Delete) 권한 포함 — 별도 협의 대상</div>`:""}
+    </div></div>`;
+  if(res.blocked) h+=`<div class="halt">접수 보류 — 필수 항목 ${res.counts.Blocker}건이 미기재입니다. 보완 후 재제출해 주십시오. (아래 등급은 현재 기재 내용 기준 잠정값)</div>`;
+
+  h+=`<table class="t"><thead><tr>
+    <th>#</th><th>Graph 권한</th><th>정보유형</th><th>접근범위</th><th>작업유형</th>
+    <th>조합</th><th>1차</th><th>최종</th></tr></thead><tbody>`;
+  res.apis.forEach(r=>{
+    h+=`<tr>
+      <td>${r.index}</td>
+      <td><b style="font-family:var(--mono)">${esc(r.permission)}</b>
+        <div class="ev">${esc(r.info.family)} · ${esc(r.purpose||"활용목적 미기재")}</div></td>
+      <td><span class="pill">${AX[r.info.v]}</span><div class="ev">${esc(r.info.note)}<br><code>${esc(r.info.src)}</code></div></td>
+      <td><span class="pill${r.scope.overridden?" ov":""}">${AX[r.scope.v]}</span>
+        <div class="ev">신고: ${esc(r.declared)}${
+          r.scope.overridden?`<br><b>RULE-SCOPE-D 발동</b> — 근거 ${r.scope.limitHits.map(x=>"<code>"+esc(x)+"</code>").join(" ")}`:""}${
+          r.scope.conflict?`<br><b>범위 상충</b> — ${r.scope.limitHits.map(x=>"<code>"+esc(x)+"</code>").join(" ")} vs ${r.scope.tenantHits.map(x=>"<code>"+esc(x)+"</code>").join(" ")}`:""}</div></td>
+      <td><span class="pill">${AX[r.op.v]}</span><div class="ev">${esc(r.op.why)}</div></td>
+      <td class="combo">${esc(r.combo)}</td>
+      <td><span class="pill G${r.base}" style="border-width:1px">G${r.base}</span></td>
+      <td><span class="pill G${r.final}" style="border-width:1px;font-size:12px">G${r.final}</span>
+        ${r.adj.length?`<div class="ev">${r.adj.map(x=>`<code>${esc(x.id)}</code> ${esc(x.text)}`).join("<br>")}</div>`:""}</td>
+    </tr>`;
+  });
+  h+=`</tbody></table>
+  <div class="legend">조합 표기 = 정보유형(G/S) + 접근범위(D/A) + 작업유형(R/W) ·
+    GDR·GDW·SDR·SDW → <b>G1</b> / GAR·GAW → <b>G2</b> / SAR·SAW → <b>G3</b> ·
+    2차 분류는 최대 1등급까지만 하향합니다.</div>`;
+  $("#verdict").innerHTML=h;
+}
+function renderFindings(res){
+  const c=res.counts;
+  let h=`<div class="counts">
+    ${["Blocker","Critical","High","Medium"].map(s=>`<span class="sev ${s}">${s} ${c[s]}</span>`).join("")}
+  </div>`;
+  if(!res.findings.length) h+=`<div class="ev">보완 요청사항이 없습니다.</div>`;
+  res.findings.forEach(f=>{
+    h+=`<div class="fnd ${f.sev}">
+      <div class="hd"><span class="sev ${f.sev}">${f.sev}</span>
+        <span class="rid">${esc(f.id)}</span>
+        ${f.target!=="-"?`<span class="tgt">${esc(f.target)}</span>`:""}
+        <span class="ttl">${esc(f.title)}</span></div>
+      ${f.detail?`<div class="dt">${esc(f.detail)}</div>`:""}
+      ${f.actions.length?`<ul>${f.actions.map(a=>`<li>${esc(a)}</li>`).join("")}</ul>`:""}
+    </div>`;
+  });
+  $("#findings").innerHTML=h;
+}
+function renderNext(res){
+  const g=res.overall;
+  if(g==null){ $("#nextsteps").innerHTML=`<div class="ev">등급 산정 후 안내됩니다.</div>`; return; }
+  const gi=CFG.GRADE_INFO[g];
+  let h=`<div class="kv">
+    <div>최종 등급 <b>${gi.code} · ${esc(gi.name)}</b></div>
+    <div>주관 <b>${esc(gi.owner)}</b></div>
+    <div>예상 소요 <b>${esc(gi.eta)}</b></div></div>`;
+  if(res.blocked) h+=`<div class="halt" style="margin-bottom:12px">0. 필수 항목 ${res.counts.Blocker}건 보완 후 재접수 — 아래 절차는 보완 완료를 전제로 합니다.</div>`;
+  h+=`<ol class="steps">${CFG.STEPS[g].map(([s,w])=>`<li>${esc(s)}<span class="who">${esc(w)}</span></li>`).join("")}</ol>`;
+  if(res.hasDelete) h+=`<div class="halt" style="margin-top:12px">추가 · 삭제(Delete) 권한 포함 건은 등급과 무관하게 운영그룹·정보보호그룹 별도 협의를 거칩니다.</div>`;
+  if(res.hasOverride) h+=`<div class="halt" style="margin-top:12px">추가 · 접근범위 재판정으로 하향된 등급은 범위 제한 조치 이행 증빙 확인 후 확정됩니다. 미이행 시 원 등급으로 환원합니다.</div>`;
+  $("#nextsteps").innerHTML=h;
+}
+function buildIR(res){
+  const req=res.request, g=res.overall, gi=g?CFG.GRADE_INFO[g]:null;
+  const L=[];
+  L.push("[Graph API 권한 요청 검토 결과 회신]");
+  L.push("");
+  L.push("■ 과제명 : "+(req.taskName||"(미기재)"));
+  L.push("■ 요청자 : "+(req.requester||"(미기재)")+"  / 개발자 : "+(req.developer||"(미기재)"));
+  L.push("■ 검토일 : "+new Date().toISOString().slice(0,10));
+  L.push("");
+  L.push("1. 권한 등급 판정 (초안)");
+  if(gi){
+    L.push("   - 종합 등급 : "+gi.code+" ("+gi.name+")");
+    L.push("   - 할당 프로세스 : "+gi.proc);
+    res.apis.forEach(r=>{
+      L.push("   - ["+r.index+"] "+r.permission+" : "+r.combo+" → 1차 G"+r.base+
+             (r.final!==r.base?" → 최종 G"+r.final:" (조정 없음)"));
+      L.push("        정보유형 "+AX[r.info.v]+" / 접근범위 "+AX[r.scope.v]+
+             (r.scope.overridden?" ※Application 신고이나 대상 한정 서술로 재판정":"")+" / 작업유형 "+AX[r.op.v]);
+      r.adj.forEach(a=>L.push("        · "+a.id+" : "+a.text));
+    });
+  } else L.push("   - 요청 API를 확인할 수 없어 등급을 산정하지 못했습니다.");
+  L.push("");
+  L.push("2. 보완 요청사항");
+  if(res.blocked) L.push("   ※ 필수 항목 미기재로 접수 보류 상태입니다. 보완 후 재제출 부탁드립니다.");
+  ["Blocker","Critical","High","Medium"].forEach(sev=>{
+    const list=res.findings.filter(f=>f.sev===sev);
+    if(!list.length) return;
+    L.push("   ["+sev+"]");
+    list.forEach(f=>{
+      L.push("   - ("+f.id+") "+(f.target!=="-"?f.target+" : ":"")+f.title);
+      if(f.detail) L.push("       "+f.detail);
+      f.actions.forEach(a=>L.push("       · "+a));
+    });
+  });
+  L.push("");
+  L.push("3. 향후 진행사항");
+  if(gi){
+    CFG.STEPS[g].forEach((s,i)=>L.push("   "+(i+1)+") "+s[0]+"  ["+s[1]+"]"));
+    L.push("   - 예상 소요 : "+gi.eta);
+  }
+  if(res.hasDelete) L.push("   - 삭제(Delete) 권한 포함 건으로 별도 협의가 필요합니다.");
+  if(res.hasOverride) L.push("   - 범위 제한 조치 이행 증빙 확인 후 등급이 확정되며, 미이행 시 원 등급으로 환원됩니다.");
+  L.push("");
+  L.push("※ 본 결과는 자동 판정 초안이며, 최종 승인은 정보보호그룹 검토 및 IR 결재선을 따릅니다.");
+  L.push("※ 부여된 권한은 분기별 전수 조사 대상이며, 90일 이상 미호출 시 회수 안내가 발송됩니다.");
+  return L.join("\n");
+}
+function rejudge(keepFields){
+  const res=judge(STATE.req);
+  STATE.res=res;
+  if(!keepFields) renderFields(STATE.req);
+  renderVerdict(res); renderFindings(res); renderNext(res);
+  ["#secFields","#secVerdict","#secFind","#secNext","#secOut"].forEach(s=>$(s).classList.remove("hide"));
+  $("#irout").classList.add("hide");
+  $("#guide").open=false;      // 결과가 나오면 기준 요약은 접어 둔다 (헤더 클릭으로 다시 펼침)
+}
+function showErr(msg){
+  const e=$("#err"); e.textContent=msg; e.classList.remove("hide");
+}
+async function handleFile(file){
+  $("#err").classList.add("hide");
+  try{
+    if(!/\.pptx$/i.test(file.name)) throw new Error("PPTX 파일만 지원합니다. (선택한 파일: "+file.name+")");
+    const buf=await file.arrayBuffer();
+    const slides=await parsePptx(buf);
+    const req=extractFields(slides);
+    if(!req.taskName && !req.apis.length && !req.scopeVolume)
+      throw new Error("신청 템플릿 항목을 찾지 못했습니다. 표준 템플릿(과제명 / API명·활용목적 / Delegated·Application …)을 사용했는지 확인해 주세요.");
+    STATE.req=req; STATE.fileName=file.name;
+    rejudge(false);
+    $("#secVerdict").scrollIntoView({behavior:"smooth",block:"start"});
+  }catch(err){ showErr("⚠ "+(err&&err.message?err.message:String(err))); }
+}
+const DEMO={
+  taskName:"OCR 포털 시스템 알람 메일링",
+  taskOverview:"OCR 포털에서 발생하는 처리 결과/오류 알람을 배치로 취합하여 담당자에게 메일 발송",
+  requester:"윤찬희 대리/DX TF", developer:"김ㅇㅇ/메가존",
+  scopeVolume:"OCR포털을 사용하는 전체 사용자 / Daily 배치를 통한 개별 알림 메일",
+  consent:"전원 동의/인지", storage:"N/A", remark:"공유사서함 noreply-ocr 1개만 사용", expiry:"~27.1.31",
+  apis:[{index:1,nameAndPurpose:"Mail.Read : 특정 사서함을 통한 시스템 알람 메일링 목표",
+    data:"없음 (M365데이터가 아닌 별도 포털 데이터의 메일 발송 기능만 활용) / noreply-ocr 공유사서함",
+    appId:"OCR-Portal-PRD-DP", permType:"Application", account:"특정 공유사서함"}],
+  _picCount:0,_tableCount:1
+};
+
+/* ── 이벤트 ── */
+const drop=$("#drop");
+$("#pick").addEventListener("click",e=>{e.stopPropagation();$("#file").click()});
+drop.addEventListener("click",()=>$("#file").click());
+drop.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("#file").click()}});
+$("#file").addEventListener("change",e=>{ if(e.target.files[0]) handleFile(e.target.files[0]); });
+["dragenter","dragover"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add("hot")}));
+["dragleave","drop"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove("hot")}));
+drop.addEventListener("drop",e=>{ const f=e.dataTransfer.files[0]; if(f) handleFile(f); });
+$("#demo").addEventListener("click",e=>{
+  e.stopPropagation();
+  STATE.req=JSON.parse(JSON.stringify(DEMO)); STATE.fileName="(샘플 데이터)";
+  $("#err").classList.add("hide"); rejudge(false);
+  $("#secVerdict").scrollIntoView({behavior:"smooth",block:"start"});
+});
+$("#btnIR").addEventListener("click",async()=>{
+  if(!STATE.res) return;
+  const txt=buildIR(STATE.res);
+  const el=$("#irout"); el.textContent=txt; el.classList.remove("hide");
+  try{ await navigator.clipboard.writeText(txt); $("#btnIR").textContent="복사 완료 ✓";
+       setTimeout(()=>$("#btnIR").textContent="IR 회신문 복사",1800); }
+  catch(_){ $("#btnIR").textContent="아래 내용을 복사하세요";
+            setTimeout(()=>$("#btnIR").textContent="IR 회신문 복사",2400); }
+});
+$("#btnJSON").addEventListener("click",()=>{
+  if(!STATE.res) return;
+  const data=JSON.parse(JSON.stringify(STATE.res));
+  data.meta.sourceFile=STATE.fileName;
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="GAPS_판정결과_"+(STATE.req.taskName||"신청서").replace(/[\\/:*?"<>|]/g,"_")+".json";
+  a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+});
+$("#btnPrint").addEventListener("click",()=>window.print());
+$("#btnReset").addEventListener("click",()=>{
+  STATE={req:null,res:null,fileName:""}; $("#file").value="";
+  ["#secFields","#secVerdict","#secFind","#secNext","#secOut"].forEach(s=>$(s).classList.add("hide"));
+  $("#err").classList.add("hide"); $("#guide").open=true;
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+/* 자체 점검용 (콘솔에서 GAPS.judge(...) 호출 가능) */
+window.GAPS={judge,extractFields,parsePptx,splitApi,lookupInfo,CFG,DEMO,
+  loadRequest(r){ STATE.req=JSON.parse(JSON.stringify(r)); STATE.fileName="(주입)"; rejudge(false); return STATE.res; }};
+</script>
+</body>
+</html>

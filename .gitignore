@@ -1,0 +1,14 @@
+# 로컬 테스트 전용 (정적 서버 기동 설정)
+.claude/
+
+# Vercel
+.vercel/
+
+# OS / 편집기
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+
+# Office 임시 파일
+~$*
