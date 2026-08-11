@@ -152,15 +152,6 @@ details.guide > summary .tagline{font-weight:400;color:var(--muted);font-size:11
   font-size:11px;font-weight:800;color:var(--navy);margin:0 0 9px;letter-spacing:.6px;
   padding-bottom:6px;border-bottom:1px solid var(--line)
 }
-/* 프로세스 흐름 */
-.flow{display:flex;gap:6px;flex-wrap:wrap;align-items:stretch}
-.flow .st{
-  flex:1 1 150px;border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:var(--bg);position:relative
-}
-.flow .st b{display:block;font-size:12px;color:var(--navy)}
-.flow .st span{font-size:10.5px;color:var(--muted)}
-.flow .st.me{background:var(--g1bg);border-color:var(--g1)}
-.flow .st.me b{color:var(--g1)}
 /* 3기준 카드 */
 .crit3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
 .crit{border:1px solid var(--line);border-radius:10px;padding:12px 13px;background:var(--bg)}
@@ -223,22 +214,26 @@ details.guide > summary .tagline{font-weight:400;color:var(--muted);font-size:11
   <span class="draft">DRAFT · 판정 결과는 초안이며 최종 승인은 정보보호그룹·IR 결재선</span>
 </header>
 
+<!-- ① 업로드 -->
+<section class="card noprint">
+  <h2><span class="n">1</span> Graph API 신청서 업로드</h2>
+  <div id="drop" tabindex="0" role="button" aria-label="Graph API 신청서 PPTX 파일 업로드">
+    <div class="big">Graph API 신청서(PPTX)를 여기에 끌어다 놓으세요</div>
+    <div class="sub">파일은 이 브라우저 안에서만 처리되며 외부로 전송되지 않습니다 · .pptx 전용</div>
+    <div class="btnrow">
+      <button id="pick" type="button">파일 선택</button>
+      <button id="demo" type="button" class="ghost">샘플로 체험하기</button>
+    </div>
+  </div>
+  <input id="file" type="file" accept=".pptx" class="hide">
+  <div id="err" class="err hide"></div>
+</section>
+
 <!-- ⓪ 기준 요약 -->
 <details class="guide" id="guide" open>
   <summary>Graph API 권한 등급 분류 기준 요약
     <span class="tagline">— 3기준 × 2값 = 8조합 → G1/G2/G3 · 판정 전에 한 번 확인하세요</span></summary>
   <div class="gbody">
-
-    <div class="gsec">
-      <h4>할당 프로세스 — 이 도구가 담당하는 구간</h4>
-      <div class="flow">
-        <div class="st"><b>1. 권한 요청 접수</b><span>요청자 / DX기획 / DX운영</span></div>
-        <div class="st"><b>2. 요건 관리</b><span>DX운영</span></div>
-        <div class="st me"><b>3. 권한 등급 분류</b><span>DX운영 · 본 도구 지원 구간</span></div>
-        <div class="st"><b>4. 보안 검토</b><span>정보보호</span></div>
-        <div class="st"><b>5. 권한 할당</b><span>요청자 / M365 운영</span></div>
-      </div>
-    </div>
 
     <div class="gsec">
       <h4>1차 분류 — Graph API를 3가지 기준으로 나눕니다</h4>
@@ -356,21 +351,6 @@ details.guide > summary .tagline{font-weight:400;color:var(--muted);font-size:11
 
   </div>
 </details>
-
-<!-- ① 업로드 -->
-<section class="card noprint">
-  <h2><span class="n">1</span> Graph API 신청서 업로드</h2>
-  <div id="drop" tabindex="0" role="button" aria-label="Graph API 신청서 PPTX 파일 업로드">
-    <div class="big">Graph API 신청서(PPTX)를 여기에 끌어다 놓으세요</div>
-    <div class="sub">파일은 이 브라우저 안에서만 처리되며 외부로 전송되지 않습니다 · .pptx 전용</div>
-    <div class="btnrow">
-      <button id="pick" type="button">파일 선택</button>
-      <button id="demo" type="button" class="ghost">샘플로 체험하기</button>
-    </div>
-  </div>
-  <input id="file" type="file" accept=".pptx" class="hide">
-  <div id="err" class="err hide"></div>
-</section>
 
 <!-- ② 추출 필드 -->
 <section id="secFields" class="card hide">
