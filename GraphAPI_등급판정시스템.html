@@ -284,6 +284,20 @@ details.guide > summary .tagline{font-weight:400;color:var(--muted);font-size:11
 .grp .sj{width:100%;font-family:inherit;font-size:12.5px;padding:7px 10px;border:1px solid var(--line);
   border-radius:7px;background:var(--bg);color:var(--ink);margin-bottom:8px}
 
+/* ══ Tab4 : 라이선스 회수 ══ */
+.pricetbl{width:100%;border-collapse:collapse;font-size:12.5px}
+.pricetbl th{background:var(--bg);font-size:11px;color:var(--muted);font-weight:700;padding:7px 9px;text-align:left;border:1px solid var(--line)}
+.pricetbl td{border:1px solid var(--line);padding:5px 9px;vertical-align:middle}
+.pricetbl input{width:110px;font-family:var(--mono);font-size:12.5px;padding:5px 8px;border:1px solid var(--line);
+  border-radius:6px;background:var(--bg);color:var(--ink);text-align:right}
+.pricetbl input:focus{outline:2px solid var(--navy);outline-offset:-1px;background:var(--card)}
+.saveline{display:flex;gap:18px;flex-wrap:wrap;align-items:baseline;margin-top:14px;padding:14px 16px;
+  border:2px solid var(--g1);border-radius:11px;background:var(--g1bg)}
+.saveline > div{min-width:0;flex:0 1 auto}
+.saveline .big{font-size:26px;font-weight:800;color:var(--g1);line-height:1.15;overflow-wrap:anywhere}
+.saveline .lb{font-size:11.5px;font-weight:700;color:var(--muted)}
+.saveline .note{flex:1 1 220px;min-width:0;font-size:11.5px;color:var(--muted);align-self:center;line-height:1.55}
+
 /* ══ Tab2 : 관리자 권한 조회 ══ */
 .searchrow{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
 .searchrow .fld{flex:1 1 260px;min-width:0}
@@ -389,6 +403,9 @@ table.roles .en{font-family:var(--mono);font-size:11px;color:var(--muted)}
   </button>
   <button type="button" role="tab" id="tabbtn3" aria-controls="tab3" aria-selected="false">
     <span class="no">3</span> Entra App 회수 대상 산출 <span class="sub">인벤토리 CSV → D1~D4 + 확인 메일</span>
+  </button>
+  <button type="button" role="tab" id="tabbtn4" aria-controls="tab4" aria-selected="false">
+    <span class="no">4</span> 라이선스 회수 대상 산출 <span class="sub">계정·사용량 CSV → L1~L4 + 절감 추정</span>
   </button>
 </div>
 
@@ -806,6 +823,102 @@ table.roles .en{font-family:var(--mono);font-size:11px;color:var(--muted)}
 </section>
 
 </div><!-- /tab3 -->
+
+<div id="tab4" role="tabpanel" aria-labelledby="tabbtn4" class="hide">
+
+<!-- ① 업로드 -->
+<section class="card noprint">
+  <h2><span class="n">1</span> 계정 · 사용량 CSV 업로드</h2>
+  <div id="t4drop" tabindex="0" role="button" aria-label="계정·사용량 CSV 업로드">
+    <div class="big">계정·사용량 CSV를 여기에 끌어다 놓으세요 (여러 개 동시 가능)</div>
+    <div class="sub">파일은 이 브라우저 안에서만 처리되며 외부로 전송되지 않습니다 · .csv 전용</div>
+    <div class="btnrow">
+      <button id="t4pick" type="button">파일 선택</button>
+      <button id="t4demo" type="button" class="ghost">샘플로 체험하기</button>
+    </div>
+  </div>
+  <input id="t4file" type="file" accept=".csv" multiple class="hide">
+  <div id="t4err" class="err hide"></div>
+  <div class="legend" style="margin-top:12px">
+    <b>① 계정 현황</b> (필수) — 관리센터 &gt; 사용자 &gt; 활성 사용자 &gt; <b>사용자 내보내기</b><br>
+    <b>② 활성 사용자 - 세부 정보</b> (권장) — 관리센터 &gt; 보고서 &gt; 사용량 &gt; <b>활성 사용자 - 세부 정보</b> &gt; 내보내기<br>
+    <b>③ Copilot 사용 현황</b> (선택) — 관리센터 &gt; 보고서 &gt; 사용량 &gt; <b>Microsoft 365 Copilot</b> &gt; 내보내기<br>
+    <span style="color:var(--g3)">⚠ 관리센터 &gt; 설정 &gt; 조직 설정 &gt; 보고서에서 <b>「익명 식별자 표시」가 켜져 있으면</b>
+      사용자 이름이 해시로 나와 계정 CSV와 매칭되지 않습니다. 내보내기 전에 꺼주세요.</span>
+  </div>
+  <div id="t4files" class="chips"></div>
+</section>
+
+<!-- ② 커버리지 -->
+<section id="t4covSec" class="card hide">
+  <h2><span class="n">2</span> 데이터 커버리지</h2>
+  <div id="t4coverage"></div>
+</section>
+
+<!-- ③ 판정 -->
+<section id="t4sumSec" class="card hide">
+  <h2><span class="n">3</span> 회수 판정 결과</h2>
+  <div id="t4summary"></div>
+</section>
+
+<!-- ④ 절감 추정 -->
+<section id="t4costSec" class="card hide">
+  <h2><span class="n">4</span> 절감 추정 <span class="sp"></span>
+    <span style="font-size:11px;font-weight:400;color:var(--muted)" class="noprint">계약 단가를 입력하면 자동 계산됩니다</span>
+  </h2>
+  <div class="searchrow" style="margin-bottom:12px">
+    <div class="fld sm"><label for="t4cur">통화 단위</label>
+      <input id="t4cur" type="text" value="원" maxlength="6"></div>
+    <div class="fld sm"><label for="t4period">단가 기준</label>
+      <select id="t4period"><option value="12">월 단가</option><option value="1">연 단가</option></select></div>
+  </div>
+  <div id="t4price"></div>
+  <div id="t4cost"></div>
+</section>
+
+<!-- ⑤ 목록 -->
+<section id="t4listSec" class="card hide">
+  <h2><span class="n">5</span> 대상 목록</h2>
+  <div class="searchrow" style="margin-bottom:10px">
+    <div class="fld"><label for="t4q">이름 · 계정 · 부서 검색</label>
+      <input id="t4q" type="text" placeholder="예: 시스템운영, @poscointl.com" autocomplete="off"></div>
+    <div class="fld sm"><label for="t4disp">판정</label>
+      <select id="t4disp"><option value="">전체</option></select></div>
+    <div class="fld sm"><label for="t4sku">SKU</label>
+      <select id="t4sku"><option value="">전체</option></select></div>
+    <div class="fld sm"><label for="t4days">미사용 기준(일)</label>
+      <input id="t4days" type="number" value="90" min="30" max="365" step="30"></div>
+  </div>
+  <div class="cnt" id="t4count"></div>
+  <div class="tblwrap"><table class="roles" id="t4table"></table></div>
+  <div class="legend">L1 즉시 회수 · L2 회수 검토 · L3 다운그레이드 검토 · L4 유지 ·
+    플래그는 판정과 별개로 병행 확인합니다.</div>
+</section>
+
+<!-- ⑥ 부서별 -->
+<section id="t4deptSec" class="card hide">
+  <h2><span class="n">6</span> 부서별 집계</h2>
+  <div class="tblwrap" style="max-height:380px"><table class="roles" id="t4dept"></table></div>
+</section>
+
+<!-- ⑦ 메일 -->
+<section id="t4mailSec" class="card hide noprint">
+  <h2><span class="n">7</span> 회수 예정 통보 메일</h2>
+  <div id="t4mail"></div>
+</section>
+
+<!-- ⑧ 내보내기 -->
+<section id="t4outSec" class="card hide noprint">
+  <h2><span class="n">8</span> 내보내기</h2>
+  <div class="btnrow" style="justify-content:flex-start">
+    <button id="t4csv" type="button">판정 결과 CSV</button>
+    <button id="t4json" type="button" class="ghost">JSON 내보내기</button>
+    <button id="t4print" type="button" class="ghost">인쇄 / PDF</button>
+    <button id="t4reset" type="button" class="ghost">초기화</button>
+  </div>
+</section>
+
+</div><!-- /tab4 -->
 
 <footer>
   GAPS v1.1 · DX혁신실 M365 운영<br>
@@ -2024,7 +2137,7 @@ $("#btnReset").addEventListener("click",()=>{
    7. 탭 전환
    ═══════════════════════════════════════════════════════════════════════════ */
 function showTab(n){
-  [1,2,3].forEach(i=>{
+  [1,2,3,4].forEach(i=>{
     $("#tab"+i).classList.toggle("hide", i!==n);
     $("#tabbtn"+i).setAttribute("aria-selected", String(i===n));
   });
@@ -2034,6 +2147,7 @@ function showTab(n){
 $("#tabbtn1").addEventListener("click",()=>showTab(1));
 $("#tabbtn2").addEventListener("click",()=>showTab(2));
 $("#tabbtn3").addEventListener("click",()=>showTab(3));
+$("#tabbtn4").addEventListener("click",()=>showTab(4));
 
 /* ═══════════════════════════════════════════════════════════════════════════
    8. Tab2 — M365 관리자 권한(역할) 조회
@@ -2773,6 +2887,544 @@ $("#t3demo").addEventListener("click",e=>{
   judgeApps(); renderT3();
   ["#t3covSec","#t3sumSec","#t3listSec","#t3mailSec","#t3outSec"].forEach(s=>$(s).classList.remove("hide"));
   $("#t3sumSec").scrollIntoView({behavior:"smooth",block:"start"});
+});
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   10. Tab4 — 라이선스 회수 대상 산출
+   ═══════════════════════════════════════════════════════════════════════════ */
+const LDISP={
+  L1:{nm:"즉시 회수",g:3,ds:"차단·삭제 계정이 보유했거나, 할당 후 한 번도 사용하지 않음"},
+  L2:{nm:"회수 검토",g:2,ds:"기준 기간 이상 전 서비스 활동 없음. 본인 확인 후 회수"},
+  L3:{nm:"다운그레이드 검토",g:2,ds:"라이선스는 쓰나 고가 SKU 기능을 사용하지 않음"},
+  L4:{nm:"유지",g:1,ds:"정상 사용 중. 회수 대상 아님"}
+};
+const LFLAG={
+  BLOCK:"로그인 차단 계정",
+  GUEST:"게스트 계정이 유상 라이선스 보유",
+  DELETED:"삭제된 계정",
+  NEVER:"할당 후 활동 이력 전무",
+  DUP:"상·하위 SKU 중복 보유",
+  NOLOC:"Usage location 미설정",
+  NOUSAGE:"사용량 데이터 없음 — 판정 불가",
+  NOCOPILOT:"Copilot 보유하나 미사용",
+  MAILONLY:"메일만 사용 — 하위 SKU 검토"
+};
+/* 셀프서비스로 자동 부여되는 무상 SKU — 회수가 아니라 '가입 통제' 대상 */
+const RE_FREE=/무료|Free|평가판|Trial|Developer|바이럴|Viral|vTrial/i;
+/* 상위 SKU + 하위 SKU 동시 보유 시 중복 */
+const SKU_PAIRS=[["Microsoft 365 E5","Microsoft 365 E3"],["Microsoft 365 E3","Microsoft 365 F3"],
+  ["Microsoft 365 E5","Microsoft 365 F3"],["Microsoft 365 E5","Power BI Pro"],
+  ["Power Automate Premium","Microsoft Power Automate Free"],
+  ["Power Apps Premium","Microsoft Power Apps for Developer"]];
+const SVCS=[["Exchange",/exchange/i],["OneDrive",/onedrive/i],["SharePoint",/sharepoint/i],
+  ["Teams",/teams/i],["Yammer",/yammer|viva\s*engage/i],["Skype",/skype/i]];
+
+let T4={files:[],users:new Map(),usage:new Map(),copilot:new Map(),
+        cov:{},rows:[],prices:{},anon:false,ready:false};
+
+const upnKey=v=>String(v||"").trim().toLowerCase();
+function paidSkus(list){ return (list||[]).filter(s=>!RE_FREE.test(s)); }
+function splitSkus(v){
+  return String(v||"").split(/[;,+]/).map(x=>x.trim())
+    .filter(x=>x && !/^unlicensed$/i.test(x));
+}
+/* 헤더 유연 매칭 — 영문/한글 리포트 모두 대응 */
+function findHead(heads,re){ return heads.find(h=>re.test(h)) || null; }
+
+function classify4(heads){
+  const h=heads.map(x=>x.trim());
+  const has=re=>h.some(x=>re.test(x));
+  if(has(/^licenses$/i)&&has(/user principal name|사용자 계정 이름/i)&&has(/block credential|로그인 차단/i)) return "users";
+  if(has(/copilot/i)&&has(/last activity|마지막 활동/i)) return "copilot";
+  if(has(/last activity|마지막 활동/i)&&SVCS.some(([,re])=>h.some(x=>re.test(x)))) return "usage";
+  return null;
+}
+const T4LABEL={users:"계정 현황",usage:"활성 사용자 - 세부 정보",copilot:"Copilot 사용 현황"};
+
+function ingest4(kind,heads,objs){
+  const H=heads.map(x=>x.trim());
+  if(kind==="users"){
+    const c={upn:findHead(H,/user principal name|사용자 계정 이름/i),
+      name:findHead(H,/display name|표시 이름/i),
+      dept:findHead(H,/^department$|부서/i), title:findHead(H,/^title$|직위|직급/i),
+      lic:findHead(H,/^licenses$/i), block:findHead(H,/block credential|로그인 차단/i),
+      created:findHead(H,/when created|만든 날짜|생성/i),
+      loc:findHead(H,/usage location|사용 위치/i),
+      dirsync:findHead(H,/dirsyncenabled/i),
+      soft:findHead(H,/soft deletion|소프트 삭제/i)};
+    objs.forEach(o=>{
+      const upn=(o[c.upn]||"").trim(); if(!upn) return;
+      T4.users.set(upnKey(upn),{
+        upn, name:(o[c.name]||"").trim()||upn,
+        dept:(o[c.dept]||"").trim(), title:(o[c.title]||"").trim(),
+        skus:splitSkus(o[c.lic]),
+        blocked:/^true$/i.test((o[c.block]||"").trim()),
+        guest:upn.includes("#EXT#"),
+        created:(o[c.created]||"").trim(),
+        loc:(o[c.loc]||"").trim(),
+        dirsync:/^true$/i.test((o[c.dirsync]||"").trim()),
+        softDel:!!(o[c.soft]||"").trim()
+      });
+    });
+  } else if(kind==="usage"){
+    const upnH=findHead(H,/user principal name|사용자 계정 이름|사용자 주체 이름/i);
+    const delH=findHead(H,/is deleted|삭제됨/i);
+    const prodH=findHead(H,/assigned products|할당된 제품/i);
+    const act={},lic={};
+    H.forEach(h=>{
+      const isAct=/last activity|마지막 활동/i.test(h);
+      const isLic=/has .*license|라이선스 있음/i.test(h);
+      if(!isAct&&!isLic) return;
+      const hit=SVCS.find(([,re])=>re.test(h));
+      if(!hit) return;
+      if(isAct) act[hit[0]]=h; else lic[hit[0]]=h;
+    });
+    let noAt=0,tot=0;
+    objs.forEach(o=>{
+      const upn=(o[upnH]||"").trim(); if(!upn) return;
+      tot++; if(!upn.includes("@")) noAt++;
+      const a={},l={};
+      Object.entries(act).forEach(([s,h])=>{ const v=(o[h]||"").trim(); if(v) a[s]=v; });
+      Object.entries(lic).forEach(([s,h])=>{ l[s]=/^true$/i.test((o[h]||"").trim()); });
+      T4.usage.set(upnKey(upn),{upn,act:a,lic:l,
+        deleted:/^true$/i.test((o[delH]||"").trim()),
+        products:(o[prodH]||"").trim()});
+    });
+    if(tot && noAt/tot>0.5) T4.anon=true;   // 익명 식별자로 내보내진 리포트
+  } else if(kind==="copilot"){
+    const upnH=findHead(H,/user principal name|사용자 계정 이름|사용자 주체 이름/i);
+    const actHs=H.filter(h=>/last activity|마지막 활동/i.test(h));
+    objs.forEach(o=>{
+      const upn=(o[upnH]||"").trim(); if(!upn) return;
+      const dates=actHs.map(h=>(o[h]||"").trim()).filter(Boolean).sort();
+      T4.copilot.set(upnKey(upn),{upn,last:dates.length?dates[dates.length-1]:"",
+        apps:actHs.filter(h=>(o[h]||"").trim()).length});
+    });
+  }
+}
+
+function judgeLicenses(){
+  const now=new Date();
+  const TH=Math.max(30,parseInt($("#t4days").value,10)||90);
+  const hasUsage=T4.usage.size>0, hasCop=T4.copilot.size>0;
+  T4.cov={users:T4.users.size>0,usage:hasUsage,copilot:hasCop,match:false};
+
+  let matched=0;
+  T4.rows=[...T4.users.values()].map(u=>{
+    const paid=paidSkus(u.skus), free=u.skus.filter(s=>RE_FREE.test(s));
+    const us=T4.usage.get(upnKey(u.upn));
+    if(us) matched++;
+    const cp=T4.copilot.get(upnKey(u.upn));
+
+    const dates=us?Object.values(us.act).map(v=>D(v)).filter(Boolean):[];
+    const lastAny=dates.length?new Date(Math.max(...dates)):null;
+    const idle=lastAny?daysBetween(lastAny,now):null;
+    const never=!!us&&dates.length===0;
+    const age=u.created?daysBetween(D(u.created)||now,now):null;
+
+    const flags=[];
+    if(u.blocked) flags.push("BLOCK");
+    if(u.softDel||(us&&us.deleted)) flags.push("DELETED");
+    if(u.guest&&paid.length) flags.push("GUEST");
+    if(never) flags.push("NEVER");
+    if(paid.length&&!u.loc) flags.push("NOLOC");
+    if(paid.length&&!us&&hasUsage) flags.push("NOUSAGE");
+    const dup=SKU_PAIRS.filter(([hi,lo])=>u.skus.includes(hi)&&u.skus.includes(lo));
+    if(dup.length) flags.push("DUP");
+
+    const hasCopilotSku=paid.some(s=>/Microsoft 365 Copilot/i.test(s));
+    const copIdle=hasCopilotSku&&hasCop
+      ? (cp&&cp.last ? daysBetween(D(cp.last)||now,now) : Infinity) : null;
+    if(copIdle!=null&&copIdle>TH) flags.push("NOCOPILOT");
+
+    /* 메일만 사용 — 하위 SKU 검토 */
+    const usedSvcs=us?Object.keys(us.act):[];
+    const mailOnly=us&&usedSvcs.length>0&&usedSvcs.every(s=>s==="Exchange")
+                   &&paid.some(s=>/Microsoft 365 E[35]/i.test(s));
+    if(mailOnly) flags.push("MAILONLY");
+
+    let d="L4", why=[];
+    if(!paid.length){
+      d="L4"; why.push("유상 라이선스 없음 — 회수 대상 아님");
+    } else if(u.blocked||u.softDel||(us&&us.deleted)){
+      d="L1"; why.push(u.blocked?"로그인 차단 계정":"삭제된 계정");
+    } else if(u.guest){
+      d="L1"; why.push("게스트 계정이 유상 라이선스 보유");
+    } else if(never&&(age==null||age>TH)){
+      d="L1"; why.push("사용량 리포트 기간 내 전 서비스 활동 0건");
+    } else if(idle!=null&&idle>TH){
+      d="L2"; why.push(`전 서비스 최종 활동 ${idle}일 전 (기준 ${TH}일)`);
+    } else if(copIdle!=null&&copIdle>TH){
+      d="L3"; why.push(copIdle===Infinity?"Copilot 보유하나 사용 이력 없음"
+                                        :`Copilot 최종 사용 ${copIdle}일 전`);
+    } else if(dup.length){
+      d="L3"; why.push("상·하위 SKU 중복: "+dup.map(x=>x.join(" + ")).join(", "));
+    } else if(mailOnly){
+      d="L3"; why.push("Exchange만 사용 — 하위 SKU 다운그레이드 검토");
+    } else {
+      d="L4";
+      why.push(us?(idle!=null?`최종 활동 ${idle}일 전`:"활동 확인됨"):"사용량 데이터 없음 — 판정 보류");
+      if(!us&&hasUsage) d="L4";
+    }
+    if(dup.length&&d!=="L3"&&d!=="L1") why.push("중복 SKU 보유");
+    if(free.length) why.push("셀프서비스 무상 SKU "+free.length+"건 보유");
+
+    return {upn:u.upn,name:u.name,dept:u.dept||"(미기재)",title:u.title,
+            disp:d,flags,why,paid,free,skus:u.skus,
+            lastAny:lastAny?ymd(lastAny):(us?"활동 없음":""),idle,
+            copLast:cp&&cp.last?cp.last:(hasCopilotSku?"사용 없음":""),
+            usedSvcs,guest:u.guest,blocked:u.blocked,loc:u.loc,age};
+  }).filter(r=>r.paid.length||r.free.length)
+    .sort((a,b)=>["L1","L2","L3","L4"].indexOf(a.disp)-["L1","L2","L3","L4"].indexOf(b.disp)
+                 ||(b.idle||0)-(a.idle||0));
+  T4.cov.match = hasUsage ? matched/Math.max(T4.users.size,1) : 0;
+  T4.matched = matched;
+}
+
+/* ── 렌더 ── */
+function t4Filter(){
+  const q=($("#t4q").value||"").trim().toLowerCase();
+  const dp=$("#t4disp").value, sk=$("#t4sku").value;
+  return T4.rows.filter(r=>{
+    if(dp&&r.disp!==dp) return false;
+    if(sk&&!r.paid.includes(sk)) return false;
+    if(q&&!(r.name+" "+r.upn+" "+r.dept+" "+r.title).toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+function renderT4(){
+  const cov=T4.cov;
+  const covItems=[
+    ["계정 현황",cov.users,"계정·라이선스·차단·부서","이 데이터 없이는 아무 판정도 불가"],
+    ["사용량(활성 사용자)",cov.usage,"서비스별 마지막 활동일","<b>실제 미사용 판정 불가</b> — 구조적 낭비만 확인 가능"],
+    ["Copilot 사용 현황",cov.copilot,"Copilot 최종 사용일","Copilot 미사용자 식별 불가 — 최고가 SKU"]
+  ];
+  $("#t4coverage").innerHTML=`<div class="covgrid">${covItems.map(([h,on,v,n])=>`
+    <div class="cov ${on?"on":"off"}"><div class="h">${esc(h)}</div>
+      <div class="v">${on?"확보":"없음"}</div>
+      <div class="n">${esc(v)}<br>${on?"":n}</div></div>`).join("")}</div>
+    ${T4.anon?`<div class="halt" style="margin-top:12px">사용량 리포트가 <b>익명 식별자</b>로 내보내져 계정과 매칭되지 않습니다.
+      관리센터 &gt; 설정 &gt; 조직 설정 &gt; 보고서에서 「익명 식별자 표시」를 끄고 다시 내보내 주세요.</div>`:""}
+    ${cov.usage&&!T4.anon?`<div class="legend" style="margin-top:10px">계정 ${T4.users.size}건 중
+      <b>${T4.matched}건</b>(${Math.round(T4.cov.match*100)}%)이 사용량 리포트와 매칭되었습니다.</div>`:""}
+    ${!cov.usage?`<div class="halt" style="margin-top:12px">
+      <b>사용량 데이터가 없어 "미사용" 판정을 할 수 없습니다.</b> 현재는 차단·삭제·게스트·중복 SKU 같은
+      구조적 낭비만 잡힙니다. 관리센터 &gt; 보고서 &gt; 사용량 &gt; <b>활성 사용자 - 세부 정보</b>를 내보내
+      함께 올려주세요.</div>`:""}`;
+
+  const cnt={L1:0,L2:0,L3:0,L4:0};
+  T4.rows.forEach(r=>cnt[r.disp]++);
+  const tot=T4.rows.length||1;
+  const paidN=T4.rows.filter(r=>r.paid.length).length;
+  const target=T4.rows.filter(r=>r.disp!=="L4");
+  const freeN=T4.rows.filter(r=>r.free.length).length;
+  $("#t4summary").innerHTML=`
+    <div class="dispgrid">${["L1","L2","L3","L4"].map(d=>{
+      const g=LDISP[d].g;
+      return `<div class="disp" data-d="${d}" role="button" aria-pressed="false"
+        style="border-color:var(--g${g});background:var(--g${g}bg)">
+        <div class="c" style="color:var(--g${g})">${d}</div>
+        <div class="num" style="color:var(--g${g})">${cnt[d]}</div>
+        <div class="nm">${esc(LDISP[d].nm)}</div>
+        <div class="ds">${esc(LDISP[d].ds)}</div></div>`;}).join("")}</div>
+    <div class="bar">${["L1","L2","L3","L4"].map(d=>
+      `<span style="width:${cnt[d]/tot*100}%;background:var(--g${LDISP[d].g})"></span>`).join("")}</div>
+    <div class="barleg">${["L1","L2","L3","L4"].map(d=>
+      `<span><i style="background:var(--g${LDISP[d].g})"></i>${d} ${esc(LDISP[d].nm)} ${cnt[d]}건</span>`).join("")}</div>
+    <div class="ctlgrid" style="margin-top:16px">
+      <div class="ctl1"><div class="h">유상 라이선스 보유</div><div class="v">${paidN}명</div></div>
+      <div class="ctl1${target.length?" warn":""}"><div class="h">회수·조정 대상</div>
+        <div class="v">${target.length}명 <span style="font-weight:400;font-size:11.5px;color:var(--muted)">
+        (${Math.round(target.length/Math.max(paidN,1)*100)}%)</span></div></div>
+      <div class="ctl1${freeN?" warn":""}"><div class="h">셀프서비스 무상 SKU 보유</div>
+        <div class="v">${freeN}명 <span style="font-weight:400;font-size:11.5px;color:var(--muted)">
+        회수가 아닌 가입 통제 대상</span></div></div>
+    </div>`;
+  $("#t4summary").querySelectorAll(".disp").forEach(el=>el.addEventListener("click",()=>{
+    const d=el.dataset.d;
+    $("#t4disp").value=($("#t4disp").value===d)?"":d;
+    renderT4List(); $("#t4listSec").scrollIntoView({behavior:"smooth",block:"start"});
+  }));
+
+  $("#t4disp").innerHTML=`<option value="">전체</option>`+
+    ["L1","L2","L3","L4"].map(d=>`<option value="${d}">${d} · ${esc(LDISP[d].nm)} (${cnt[d]})</option>`).join("");
+  const allPaid=[...new Set(T4.rows.flatMap(r=>r.paid))].sort();
+  $("#t4sku").innerHTML=`<option value="">전체</option>`+
+    allPaid.map(s=>`<option value="${esc(s)}">${esc(s)} (${T4.rows.filter(r=>r.paid.includes(s)).length})</option>`).join("");
+  renderT4Price(allPaid); renderT4List(); renderT4Dept(); renderT4Mail();
+}
+function renderT4Price(allPaid){
+  const cur=$("#t4cur").value||"원";
+  $("#t4price").innerHTML=`<div class="tblwrap" style="max-height:300px"><table class="pricetbl">
+    <thead><tr><th>SKU</th><th style="text-align:right">보유</th>
+      <th style="text-align:right">회수 대상<br>(L1+L2)</th>
+      <th style="text-align:right">다운그레이드<br>(L3)</th>
+      <th style="text-align:right">단가 (${esc(cur)})</th></tr></thead>
+    <tbody>${allPaid.map(s=>{
+      const hold=T4.rows.filter(r=>r.paid.includes(s)).length;
+      const rec=T4.rows.filter(r=>r.paid.includes(s)&&(r.disp==="L1"||r.disp==="L2")).length;
+      const dg=T4.rows.filter(r=>r.paid.includes(s)&&r.disp==="L3").length;
+      return `<tr><td><b>${esc(s)}</b></td>
+        <td style="text-align:right">${hold}</td>
+        <td style="text-align:right;color:var(--g3);font-weight:700">${rec}</td>
+        <td style="text-align:right;color:var(--g2);font-weight:700">${dg}</td>
+        <td style="text-align:right"><input type="number" min="0" step="100" data-sku="${esc(s)}"
+          value="${T4.prices[s]||0}"></td></tr>`;}).join("")}</tbody></table></div>`;
+  $("#t4price").querySelectorAll("input").forEach(i=>i.addEventListener("input",()=>{
+    T4.prices[i.dataset.sku]=parseFloat(i.value)||0; renderT4Cost();
+  }));
+  renderT4Cost();
+}
+function renderT4Cost(){
+  const cur=$("#t4cur").value||"원";
+  const mult=parseInt($("#t4period").value,10)||12;
+  let rec=0,dg=0,any=false;
+  Object.entries(T4.prices).forEach(([s,p])=>{
+    if(!p) return; any=true;
+    rec+=T4.rows.filter(r=>r.paid.includes(s)&&(r.disp==="L1"||r.disp==="L2")).length*p*mult;
+    dg +=T4.rows.filter(r=>r.paid.includes(s)&&r.disp==="L3").length*p*mult;
+  });
+  const f=n=>n.toLocaleString("ko-KR",{maximumFractionDigits:0});
+  $("#t4cost").innerHTML=any?`<div class="saveline">
+      <div><div class="lb">연간 절감 추정 — 회수(L1+L2)</div><div class="big">${f(rec)} ${esc(cur)}</div></div>
+      <div><div class="lb">다운그레이드 검토(L3) 상한</div><div class="big" style="color:var(--g2)">${f(dg)} ${esc(cur)}</div></div>
+      <div class="note">
+        입력하신 단가 기준 산술 추정입니다. 실제 절감은 계약 형태(EA/CSP), 최소 약정 수량,
+        갱신 시점에 따라 달라지므로 <b>구매 담당과 확인</b>이 필요합니다.
+        L3는 상한값이며 실제로는 하위 SKU 비용이 차감됩니다.</div>
+    </div>`
+    :`<div class="legend" style="margin-top:12px">위 표에 SKU별 단가를 입력하면 절감액이 계산됩니다.
+      계약 단가는 EA/CSP 등 계약 형태마다 다르므로 직접 입력하셔야 합니다.</div>`;
+}
+function renderT4List(){
+  const list=t4Filter();
+  $("#t4count").innerHTML=`총 <b>${T4.rows.length}</b>건 중 <b>${list.length}</b>건 표시`;
+  $("#t4table").innerHTML=`<thead><tr>
+      <th>판정</th><th>이름 / 계정</th><th>부서 · 직급</th><th>유상 SKU</th>
+      <th>최종 활동</th><th>플래그</th><th>판정 근거</th></tr></thead>
+    <tbody>${list.slice(0,400).map(r=>`<tr>
+      <td class="gcell" style="color:var(--g${LDISP[r.disp].g});background:var(--g${LDISP[r.disp].g}bg)">${r.disp}</td>
+      <td><b>${esc(r.name)}</b>${r.guest?' <span class="flag">게스트</span>':""}
+        <div class="en">${esc(r.upn.slice(0,42))}</div></td>
+      <td style="white-space:nowrap">${esc(r.dept)}${r.title?" · "+esc(r.title):""}</td>
+      <td>${r.paid.map(s=>`<div>${esc(s)}</div>`).join("")||'<span style="color:var(--muted)">—</span>'}</td>
+      <td style="white-space:nowrap">${esc(r.lastAny||"—")}${r.idle!=null?`<div class="en">${r.idle}일 전</div>`:""}</td>
+      <td><div class="flags">${r.flags.map(f=>`<span class="flag" title="${esc(LFLAG[f]||f)}">${f}</span>`).join("")}</div></td>
+      <td style="font-size:11.5px;color:var(--muted)">${esc(r.why.join(" · "))}</td>
+    </tr>`).join("")}</tbody>`;
+  if(list.length>400) $("#t4count").innerHTML+=` <span style="color:var(--g3)">(상위 400건만 표시 — 전체는 CSV로)</span>`;
+}
+function renderT4Dept(){
+  const m=new Map();
+  T4.rows.forEach(r=>{
+    if(!m.has(r.dept)) m.set(r.dept,{L1:0,L2:0,L3:0,L4:0,paid:0});
+    const x=m.get(r.dept); x[r.disp]++; if(r.paid.length) x.paid++;
+  });
+  const arr=[...m.entries()].map(([k,v])=>({dept:k,...v,target:v.L1+v.L2+v.L3}))
+    .sort((a,b)=>b.target-a.target||b.paid-a.paid);
+  $("#t4dept").innerHTML=`<thead><tr><th>부서</th><th>유상 보유</th>
+      <th>L1</th><th>L2</th><th>L3</th><th>회수·조정 대상</th><th>비율</th></tr></thead>
+    <tbody>${arr.map(d=>`<tr>
+      <td><b>${esc(d.dept)}</b></td>
+      <td style="text-align:right">${d.paid}</td>
+      <td style="text-align:right;color:var(--g3)">${d.L1||""}</td>
+      <td style="text-align:right;color:var(--g2)">${d.L2||""}</td>
+      <td style="text-align:right;color:var(--g2)">${d.L3||""}</td>
+      <td style="text-align:right;font-weight:700">${d.target||""}</td>
+      <td style="text-align:right">${d.paid?Math.round(d.target/d.paid*100)+"%":"—"}</td>
+    </tr>`).join("")}</tbody>`;
+}
+function buildLicenseMail(r,TH){
+  const due=ymd(addBizDays(new Date(),10));
+  const L=[];
+  L.push(r.name+" 님께,");
+  L.push("");
+  L.push("DX혁신실 M365 운영입니다.");
+  L.push("M365 라이선스 사용 현황을 정기 점검하는 과정에서 아래와 같이 확인되어 안내드립니다.");
+  L.push("");
+  L.push("■ 대상 라이선스");
+  r.paid.forEach(s=>L.push("  · "+s));
+  L.push("");
+  L.push("■ 확인 내용");
+  r.why.forEach(w=>L.push("  · "+w));
+  if(r.lastAny) L.push("  · 최종 서비스 활동일 : "+r.lastAny+(r.idle!=null?` (${r.idle}일 전)`:""));
+  if(r.copLast) L.push("  · Copilot 최종 사용 : "+r.copLast);
+  L.push("");
+  L.push("■ 조치 예정");
+  if(r.disp==="L3"){
+    L.push("  현재 보유하신 라이선스의 상위 기능을 사용하지 않고 계신 것으로 확인됩니다.");
+    L.push("  업무에 지장이 없다면 하위 라이선스로 조정하고자 합니다.");
+  } else {
+    L.push(`  ${TH}일 이상 사용 이력이 확인되지 않아 라이선스 회수를 검토하고 있습니다.`);
+  }
+  L.push("");
+  L.push("■ 회신 요청");
+  L.push("  아래 중 하나로 "+due+" 까지 회신 부탁드립니다.");
+  L.push("");
+  L.push("  (1) 계속 필요합니다   → 사용 용도와 예상 사용 시점을 알려주세요. 유지하겠습니다.");
+  L.push("  (2) 불필요합니다      → 라이선스를 회수하겠습니다.");
+  L.push("  (3) 조정에 동의합니다 → 하위 라이선스로 변경하겠습니다. (해당 시)");
+  L.push("");
+  L.push("■ 미회신 시 처리");
+  L.push("  회신이 없으면 회신 기한 경과 후 라이선스를 회수합니다.");
+  L.push("  회수 후에도 필요하시면 언제든 재신청하실 수 있으며, 통상 1영업일 내 재부여됩니다.");
+  L.push("  ※ 메일·파일 등 데이터는 삭제되지 않습니다. 다만 라이선스 회수 후 30일이 지나면");
+  L.push("     사서함 데이터가 삭제될 수 있으므로, 필요 시 반드시 기한 내 회신해 주세요.");
+  L.push("");
+  L.push("감사합니다.");
+  L.push("DX혁신실 M365 운영 드림");
+  return {subject:`[확인 요청] M365 라이선스 ${r.disp==="L3"?"조정":"회수"} 예정 안내 (${due}까지 회신)`,
+          body:L.join("\n")};
+}
+function renderT4Mail(){
+  const box=$("#t4mail");
+  const TH=Math.max(30,parseInt($("#t4days").value,10)||90);
+  const targets=T4.rows.filter(r=>r.disp!=="L4"&&!r.guest&&!r.blocked&&r.paid.length);
+  const auto=T4.rows.filter(r=>r.disp==="L1"&&(r.guest||r.blocked));
+  let h=`<div class="ctlgrid" style="margin-bottom:14px">
+    <div class="ctl1"><div class="h">통보 대상</div><div class="v">${targets.length}명</div></div>
+    <div class="ctl1${auto.length?" warn":""}"><div class="h">통보 불필요</div>
+      <div class="v">${auto.length}명 <span style="font-weight:400;font-size:11.5px;color:var(--muted)">
+      차단·게스트 계정 — 즉시 회수</span></div></div>
+  </div>`;
+  if(auto.length)
+    h+=`<div class="halt" style="margin-bottom:12px">차단·게스트 계정 ${auto.length}건은 본인 통보 없이
+      즉시 회수 가능합니다. 다만 퇴직 처리 중이거나 복직 예정인 계정이 섞여 있을 수 있으니
+      <b>인사 담당과 대조 후</b> 진행하세요.</div>`;
+  if(!targets.length){ box.innerHTML=h+`<div class="ev">개별 통보 대상이 없습니다.</div>`; return; }
+  h+=`<div class="legend" style="margin-bottom:10px">상위 30명분의 초안을 표시합니다.
+    전체 대상은 CSV로 내보낸 뒤 메일 병합으로 발송하세요.</div>`;
+  targets.slice(0,30).forEach((r,i)=>{
+    const m=buildLicenseMail(r,TH);
+    h+=`<details class="grp"${i===0?" open":""}>
+      <summary>${esc(r.name)} <span class="who">${esc(r.upn)}</span>
+        <span class="tag cat">${esc(r.dept)}</span>
+        <span class="tag" style="color:var(--g${LDISP[r.disp].g});border-color:var(--g${LDISP[r.disp].g});background:var(--g${LDISP[r.disp].g}bg)">${r.disp}</span></summary>
+      <div class="body">
+        <input class="sj" type="text" value="${esc(m.subject)}">
+        <textarea spellcheck="false">${esc(m.body)}</textarea>
+        <div class="btnrow" style="justify-content:flex-start;margin-top:8px">
+          <button type="button" class="mcopy4">제목 + 본문 복사</button>
+          <button type="button" class="ghost mopen4" data-mail="${esc(r.upn)}">메일 앱에서 초안 열기</button>
+        </div>
+      </div></details>`;
+  });
+  box.innerHTML=h;
+  box.querySelectorAll(".mcopy4").forEach(b=>b.addEventListener("click",async()=>{
+    const d=b.closest(".body");
+    const txt="제목: "+d.querySelector(".sj").value+"\n\n"+d.querySelector("textarea").value;
+    try{ await navigator.clipboard.writeText(txt); b.textContent="복사 완료 ✓"; }
+    catch(_){ d.querySelector("textarea").select(); b.textContent="Ctrl+C 로 복사하세요"; }
+    setTimeout(()=>b.textContent="제목 + 본문 복사",1800);
+  }));
+  box.querySelectorAll(".mopen4").forEach(b=>b.addEventListener("click",async()=>{
+    const d=b.closest(".body"), body=d.querySelector("textarea").value;
+    try{ await navigator.clipboard.writeText(body); }catch(_){}
+    const head="mailto:"+encodeURIComponent(b.dataset.mail)+"?subject="+
+               encodeURIComponent(d.querySelector(".sj").value)+"&body=";
+    let payload=body;
+    if(head.length+encodeURIComponent(body).length>1900)
+      payload="(전체 본문은 클립보드에 복사되어 있습니다. 이 줄을 지우고 붙여넣기 하세요.)";
+    window.location.href=head+encodeURIComponent(payload);
+  }));
+}
+
+/* ── 입력 ── */
+async function t4Handle(files){
+  $("#t4err").classList.add("hide");
+  try{
+    for(const f of files){
+      if(!/\.csv$/i.test(f.name)) throw new Error("CSV 파일만 지원합니다: "+f.name);
+      const text=await f.text();
+      const rows=parseCSV(text);
+      if(rows.length<2) throw new Error("내용이 비어 있습니다: "+f.name);
+      const kind=classify4(rows[0]);
+      if(!kind) throw new Error("인식할 수 없는 CSV입니다: "+f.name+
+        " — 계정 현황 / 활성 사용자 - 세부 정보 / Copilot 사용 현황 중 하나를 올려주세요.");
+      const objs=csvObjects(text);
+      ingest4(kind,rows[0],objs);
+      T4.files=T4.files.filter(x=>x.name!==f.name);
+      T4.files.push({name:f.name,kind,rows:objs.length});
+    }
+    if(!T4.users.size) throw new Error("계정 현황 CSV가 필요합니다. 관리센터 > 사용자 > 활성 사용자 > 사용자 내보내기");
+    T4.ready=true;
+    $("#t4files").innerHTML=T4.files.map(f=>
+      `<span class="chip"><span class="ok">✓</span><b>${esc(T4LABEL[f.kind])}</b>
+       <span class="cnt">${f.rows}행</span><span class="cnt">${esc(f.name)}</span></span>`).join("");
+    judgeLicenses(); renderT4();
+    ["#t4covSec","#t4sumSec","#t4costSec","#t4listSec","#t4deptSec","#t4mailSec","#t4outSec"]
+      .forEach(s=>$(s).classList.remove("hide"));
+    $("#t4sumSec").scrollIntoView({behavior:"smooth",block:"start"});
+  }catch(e){ const el=$("#t4err"); el.textContent="⚠ "+(e&&e.message?e.message:String(e)); el.classList.remove("hide"); }
+}
+const t4drop=$("#t4drop");
+$("#t4pick").addEventListener("click",e=>{e.stopPropagation();$("#t4file").click()});
+t4drop.addEventListener("click",()=>$("#t4file").click());
+t4drop.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("#t4file").click()}});
+$("#t4file").addEventListener("change",e=>{ if(e.target.files.length) t4Handle([...e.target.files]); });
+["dragenter","dragover"].forEach(t=>t4drop.addEventListener(t,e=>{e.preventDefault();t4drop.classList.add("hot")}));
+["dragleave","drop"].forEach(t=>t4drop.addEventListener(t,e=>{e.preventDefault();t4drop.classList.remove("hot")}));
+t4drop.addEventListener("drop",e=>{ if(e.dataTransfer.files.length) t4Handle([...e.dataTransfer.files]); });
+["#t4q"].forEach(s=>$(s).addEventListener("input",renderT4List));
+["#t4disp","#t4sku"].forEach(s=>$(s).addEventListener("change",renderT4List));
+$("#t4days").addEventListener("change",()=>{ if(T4.ready){ judgeLicenses(); renderT4(); } });
+["#t4cur","#t4period"].forEach(s=>$(s).addEventListener("input",()=>{
+  if(T4.ready) renderT4Price([...new Set(T4.rows.flatMap(r=>r.paid))].sort());
+}));
+$("#t4print").addEventListener("click",()=>window.print());
+$("#t4reset").addEventListener("click",()=>{
+  T4={files:[],users:new Map(),usage:new Map(),copilot:new Map(),cov:{},rows:[],prices:{},anon:false,ready:false};
+  $("#t4file").value=""; $("#t4files").innerHTML=""; $("#t4err").classList.add("hide");
+  ["#t4covSec","#t4sumSec","#t4costSec","#t4listSec","#t4deptSec","#t4mailSec","#t4outSec"]
+    .forEach(s=>$(s).classList.add("hide"));
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+$("#t4csv").addEventListener("click",()=>{
+  const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+  const head=["판정","판정명","이름","계정","부서","직급","유상 SKU","무상 SKU",
+              "최종 활동일","미사용 일수","Copilot 최종 사용","사용 서비스","플래그","판정 근거"];
+  const body=T4.rows.map(r=>[r.disp,LDISP[r.disp].nm,r.name,r.upn,r.dept,r.title,
+    r.paid.join(";"),r.free.join(";"),r.lastAny,r.idle==null?"":r.idle,r.copLast,
+    r.usedSvcs.join(";"),r.flags.join(";"),r.why.join(" / ")].map(q).join(","));
+  dl("라이선스_회수대상_"+ymd(new Date())+".csv","﻿"+[head.map(q).join(","),...body].join("\r\n"),
+     "text/csv;charset=utf-8");
+});
+$("#t4json").addEventListener("click",()=>{
+  dl("라이선스_회수대상_"+ymd(new Date())+".json",
+     JSON.stringify({meta:{tool:"GAPS Tab4",version:"1.0",generatedAt:new Date().toISOString(),
+       files:T4.files,coverage:T4.cov,matched:T4.matched,anonymized:T4.anon,
+       idleDays:parseInt($("#t4days").value,10),prices:T4.prices},
+       disposition:LDISP,flags:LFLAG,users:T4.rows},null,1),"application/json");
+});
+$("#t4demo").addEventListener("click",e=>{
+  e.stopPropagation();
+  T4={files:[{name:"(샘플 데이터)",kind:"users",rows:6}],users:new Map(),usage:new Map(),
+      copilot:new Map(),cov:{},rows:[],prices:{},anon:false,ready:true};
+  const ago=d=>ymd(new Date(Date.now()-d*86400000));
+  const U=(upn,name,dept,title,skus,extra)=>Object.assign(
+    {upn,name,dept,title,skus,blocked:false,guest:false,created:ago(800),loc:"KR",dirsync:true,softDel:false},extra);
+  [
+    U("kim@poscointl.com","김운영","시스템운영","차장",["Microsoft 365 E3","Microsoft 365 Copilot"]),
+    U("lee@poscointl.com","이기획","DX기획","과장",["Microsoft 365 E3","Microsoft 365 Copilot"]),
+    U("park@poscointl.com","박휴직","업무지원팀(기타)","대리",["Microsoft 365 E3"]),
+    U("choi@poscointl.com","최퇴직","업무지원팀(기타)","사원",["Microsoft 365 E3"],{blocked:true}),
+    U("jung@poscointl.com","정메일","터미널운영그룹","부장",["Microsoft 365 E3"]),
+    U("ext_a#EXT#@poscointl.com","외부협력사","","",["Microsoft 365 E3"],{guest:true}),
+  ].forEach(u=>T4.users.set(upnKey(u.upn),u));
+  T4.usage.set("kim@poscointl.com",{act:{Exchange:ago(1),Teams:ago(1),OneDrive:ago(3),SharePoint:ago(2)},lic:{},deleted:false});
+  T4.usage.set("lee@poscointl.com",{act:{Exchange:ago(2),Teams:ago(4),OneDrive:ago(9)},lic:{},deleted:false});
+  T4.usage.set("park@poscointl.com",{act:{},lic:{},deleted:false});
+  T4.usage.set("choi@poscointl.com",{act:{Exchange:ago(240)},lic:{},deleted:false});
+  T4.usage.set("jung@poscointl.com",{act:{Exchange:ago(2)},lic:{},deleted:false});
+  T4.copilot.set("kim@poscointl.com",{last:ago(1),apps:4});
+  T4.copilot.set("lee@poscointl.com",{last:"",apps:0});
+  T4.prices={"Microsoft 365 E3":48000,"Microsoft 365 Copilot":42000};
+  $("#t4files").innerHTML=`<span class="chip"><span class="ok">✓</span><b>샘플 데이터</b><span class="cnt">6행</span></span>`;
+  $("#t4err").classList.add("hide");
+  judgeLicenses(); renderT4();
+  ["#t4covSec","#t4sumSec","#t4costSec","#t4listSec","#t4deptSec","#t4mailSec","#t4outSec"]
+    .forEach(s=>$(s).classList.remove("hide"));
+  $("#t4sumSec").scrollIntoView({behavior:"smooth",block:"start"});
 });
 
 /* 자체 점검용 (콘솔에서 GAPS.judge(...) 호출 가능) */

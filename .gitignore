@@ -6,6 +6,9 @@
 entra_export/
 AppRegistrationList*.csv
 0[1-5]_*.csv
+users_*.csv
+*ActiveUserDetail*.csv
+*Copilot*Usage*.csv
 
 # Vercel
 .vercel/
