@@ -9,11 +9,21 @@ DX혁신실 M365 운영 | 2026-08-11
 
 ## 바로 쓰기
 
+### 웹으로 (팀 공유용)
+
+**https://graph-api-permission-screener.vercel.app**
+
+### 파일로 (오프라인·사내망)
+
 1. **`GraphAPI_등급판정시스템.html`** 을 더블클릭 (Edge/Chrome)
 2. `samples/` 안의 PPTX를 창에 끌어다 놓기 — 또는 **[샘플로 체험하기]** 클릭
 3. 결과 확인 후 **[IR 회신문 복사]** 로 그대로 회신
 
-> 서버·설치·인터넷 연결 불필요. 업로드한 파일은 **브라우저 안에서만** 처리되며 외부로 전송되지 않는다.
+> 어느 쪽이든 **업로드한 파일은 브라우저 안에서만** 처리된다. 서버로 전송되지 않으며, 웹 버전도 정적 호스팅일 뿐 파일을 수신·보관하지 않는다.
+> 파일 버전은 설치·인터넷 연결도 필요 없다.
+
+- 저장소 · https://github.com/hjkim199264-sketch/graph-api-permission-screener
+- 배포 URL은 검색엔진 색인에서 제외(`X-Robots-Tag: noindex`)했으나, **링크를 아는 사람은 접근할 수 있다.**
 
 ---
 
@@ -22,12 +32,19 @@ DX혁신실 M365 운영 | 2026-08-11
 | 경로 | 설명 |
 |---|---|
 | `GraphAPI_등급판정시스템.html` | **판정 시스템 본체.** 단일 파일·오프라인 동작 |
+| `index.html` | 웹 배포용 진입점 (위 파일로 리다이렉트) |
 | `docs/BRD_GraphAPI_권한관리체계.md` | 배경·문제정의·비즈니스 목표·범위·성공지표·리스크 |
 | `docs/PRD_GraphAPI_등급판정시스템.md` | 기능요구사항·분류 규칙·API 사전·데이터 모델·화면정의·테스트 결과 |
 | `templates/Graph API 권한 신청서_템플릿_v1.0.pptx` | **요청자 배포용 빈 양식** (Full 1p + 약식 1p) |
 | `samples/*.pptx` | 작성 예시 6종 (테스트 케이스 겸용) |
 | `tools/build_templates.py` | 위 템플릿·샘플 PPTX 생성 스크립트 |
-| `.claude/launch.json` | 로컬 테스트용 정적 서버 설정 (운영에 불필요) |
+| `vercel.json` | 배포 설정 (보안 헤더, `noindex`) |
+
+## 업데이트 배포
+
+```bash
+git add -A && git commit -m "..." && git push && vercel deploy --prod --yes
+```
 
 ---
 
